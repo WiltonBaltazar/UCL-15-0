@@ -134,11 +134,12 @@ export default function App() {
       setSelectedPlayerToAssign(null);
       playSound('spin');
 
+      const currentDecade = spinResult.decade;
+
       setTimeout(() => {
         const draftedIds = gameState.squad.filter(p => p !== null).map(p => p!.id);
         
-        // Find all Clubs that have UNDRAFTED players in the CURRENT decade
-        const validClubs = PLAYERS.filter(p => p.decade === spinResult.decade && !draftedIds.includes(p.id))
+        const validClubs = PLAYERS.filter(p => p.decade === currentDecade && !draftedIds.includes(p.id))
           .map(p => p.club);
         
         const uniqueClubs = Array.from(new Set(validClubs));
@@ -148,11 +149,11 @@ export default function App() {
           return;
         }
 
-        const club = uniqueClubs[Math.floor(Math.random() * uniqueClubs.length)];
-        setSpinResult(prev => ({ ...prev!, club }));
+        const newClub = uniqueClubs[Math.floor(Math.random() * uniqueClubs.length)];
+        setSpinResult({ club: newClub, decade: currentDecade });
         playSound('lock');
 
-        const players = PLAYERS.filter(p => p.club === club && p.decade === spinResult.decade && !draftedIds.includes(p.id));
+        const players = PLAYERS.filter(p => p.club === newClub && p.decade === currentDecade && !draftedIds.includes(p.id));
         setActiveRoster(players);
         setIsSpinning(false);
       }, 1000);
@@ -166,11 +167,12 @@ export default function App() {
       setSelectedPlayerToAssign(null);
       playSound('spin');
 
+      const currentClub = spinResult.club;
+
       setTimeout(() => {
         const draftedIds = gameState.squad.filter(p => p !== null).map(p => p!.id);
         
-        // Find all Decades that have UNDRAFTED players for the CURRENT club
-        const validDecades = PLAYERS.filter(p => p.club === spinResult.club && !draftedIds.includes(p.id))
+        const validDecades = PLAYERS.filter(p => p.club === currentClub && !draftedIds.includes(p.id))
           .map(p => p.decade);
         
         const uniqueDecades = Array.from(new Set(validDecades));
@@ -180,11 +182,11 @@ export default function App() {
           return;
         }
 
-        const decade = uniqueDecades[Math.floor(Math.random() * uniqueDecades.length)] as any;
-        setSpinResult(prev => ({ ...prev!, decade }));
+        const newDecade = uniqueDecades[Math.floor(Math.random() * uniqueDecades.length)] as any;
+        setSpinResult({ club: currentClub, decade: newDecade });
         playSound('lock');
 
-        const players = PLAYERS.filter(p => p.club === spinResult.club && p.decade === decade && !draftedIds.includes(p.id));
+        const players = PLAYERS.filter(p => p.club === currentClub && p.decade === newDecade && !draftedIds.includes(p.id));
         setActiveRoster(players);
         setIsSpinning(false);
       }, 1000);

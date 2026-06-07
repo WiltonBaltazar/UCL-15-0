@@ -23,6 +23,11 @@ const SQUADS: Record<string, Record<string, { names: string[], positions: string
       names: ['Cristiano Ronaldo', 'Wayne Rooney', 'Paul Scholes', 'Rio Ferdinand', 'Nemanja Vidić', 'Edwin van der Sar', 'Ryan Giggs', 'Ruud van Nistelrooy', 'Michael Carrick', 'Patrice Evra', 'Gary Neville', 'Park Ji-sung', 'Darren Fletcher', 'Carlos Tevez', 'Louis Saha', 'Wes Brown', 'John O\'Shea', 'Tomasz Kuszczak', 'Owen Hargreaves', 'Nani', 'Anderson', 'Mikaël Silvestre', 'Alan Smith', 'Kieran Richardson'],
       positions: [['ST', 'LW'], ['ST', 'CAM'], ['CM'], ['CB'], ['CB'], ['GK'], ['LM', 'LW'], ['ST'], ['CDM', 'CM'], ['LB'], ['RB'], ['LM', 'RM'], ['CM'], ['ST'], ['ST'], ['CB', 'RB'], ['RB', 'LB', 'CDM'], ['GK'], ['CDM'], ['RW'], ['CAM'], ['CB', 'LB'], ['ST', 'CDM'], ['LM']],
       ratings: [94, 91, 92, 92, 91, 93, 90, 92, 89, 90, 88, 87, 86, 90, 86, 85, 85, 82, 86, 87, 85, 84, 84, 80]
+    },
+    'Bayern Munich': {
+      names: ['Oliver Kahn', 'Stefan Effenberg', 'Giovane Élber', 'Bixente Lizarazu', 'Michael Ballack', 'Willy Sagnol', 'Roy Makaay', 'Bastian Schweinsteiger', 'Lúcio', 'Miroslav Klose', 'Philipp Lahm', 'Martin Demichelis', 'Mark van Bommel', 'Daniel Van Buyten', 'Zé Roberto', 'Andreas Görlitz', 'Torsten Frings', 'Owen Hargreaves', 'Roque Santa Cruz', 'Mehmet Scholl', 'Alexander Zickler', 'Hans-Jörg Butt', 'Lukas Podolski', 'Hamit Altıntop'],
+      positions: [['GK'], ['CM'], ['ST'], ['LB'], ['CM', 'CAM'], ['RB'], ['ST'], ['CM', 'CDM'], ['CB'], ['ST'], ['LB', 'RB'], ['CB'], ['CDM'], ['CB'], ['CM', 'LM'], ['RB'], ['CM', 'RM'], ['CM', 'CDM'], ['ST'], ['CAM', 'RW'], ['ST'], ['GK'], ['ST'], ['RM', 'CM']],
+      ratings: [94, 92, 90, 91, 92, 89, 91, 90, 92, 90, 92, 88, 89, 87, 89, 85, 88, 87, 86, 89, 85, 86, 85, 85]
     }
   },
   '2010s': {
@@ -31,10 +36,10 @@ const SQUADS: Record<string, Record<string, { names: string[], positions: string
       positions: [['ST', 'LW'], ['CM', 'CAM'], ['CB'], ['ST'], ['CM', 'CDM'], ['LB'], ['CDM'], ['GK'], ['RB'], ['RW', 'ST'], ['CB'], ['CAM', 'CM'], ['CB'], ['RW', 'CM'], ['GK'], ['LB'], ['CDM'], ['CM'], ['RW', 'RB'], ['CB', 'RB', 'LB'], ['ST'], ['CDM'], ['CAM'], ['GK']],
       ratings: [99, 98, 97, 95, 96, 94, 93, 93, 91, 94, 91, 89, 90, 90, 90, 86, 91, 87, 85, 86, 86, 84, 90, 83]
     },
-    'Barcelona': {
-      names: ['Lionel Messi', 'Andrés Iniesta', 'Xavi', 'Luis Suárez', 'Jordi Alba', 'Gerard Piqué', 'Sergio Busquets', 'Dani Alves', 'Marc-André ter Stegen', 'Neymar Jr', 'Ivan Rakitic', 'Cesc Fàbregas', 'Pedro', 'Javier Mascherano', 'Alexis Sánchez', 'Claudio Bravo', 'Sergi Roberto', 'Samuel Umtiti', 'Arthur', 'Philippe Coutinho', 'Ousmane Dembélé', 'Arturo Vidal', 'Nelson Semedo', 'Jasper Cillessen'],
-      positions: [['RW', 'CAM', 'ST'], ['CM', 'CAM', 'LW'], ['CM'], ['ST'], ['LB'], ['CB'], ['CDM'], ['RB'], ['GK'], ['LW', 'ST'], ['CM'], ['CAM', 'CM'], ['LW', 'RW'], ['CB', 'CDM'], ['RW', 'LW'], ['GK'], ['RB', 'CM'], ['CB'], ['CM'], ['CAM', 'LW'], ['RW', 'LW'], ['CM', 'CDM'], ['RB'], ['GK']],
-      ratings: [99, 97, 96, 95, 91, 93, 94, 93, 91, 93, 90, 89, 88, 88, 89, 87, 87, 87, 86, 87, 87, 88, 86, 85]
+    'Liverpool': {
+      names: ['Mohamed Salah', 'Sadio Mané', 'Virgil van Dijk', 'Alisson Becker', 'Roberto Firmino', 'Jordan Henderson', 'Andrew Robertson', 'Trent Alexander-Arnold', 'Georginio Wijnaldum', 'Fabinho', 'James Milner', 'Simon Mignolet', 'Dejan Lovren', 'Joel Matip', 'Joe Gomez', 'Daniel Sturridge', 'Philippe Coutinho', 'Emre Can', 'Alex Oxlade-Chamberlain', 'Adam Lallana', 'Daniel Agger', 'Lucas Leiva', 'Martin Škrtel', 'Loris Karius'],
+      positions: [['RW', 'LW', 'ST'], ['LW', 'ST'], ['CB'], ['GK'], ['ST', 'CAM'], ['CM', 'CDM'], ['LB'], ['RB'], ['CM'], ['CDM'], ['CM', 'RB'], ['GK'], ['CB'], ['CB'], ['CB', 'RB'], ['ST'], ['CAM', 'LW'], ['CM', 'CDM'], ['CM', 'RW'], ['CAM', 'CM'], ['CB'], ['CDM'], ['CB'], ['GK']],
+      ratings: [94, 92, 96, 94, 91, 89, 90, 92, 89, 90, 86, 85, 85, 87, 85, 86, 91, 85, 84, 84, 86, 86, 86, 80]
     }
   },
   '2020s': {
@@ -42,11 +47,6 @@ const SQUADS: Record<string, Record<string, { names: string[], positions: string
       names: ['Erling Haaland', 'Kevin De Bruyne', 'Rodri', 'Ruben Dias', 'Ederson', 'Bernardo Silva', 'Phil Foden', 'John Stones', 'Kyle Walker', 'Ilkay Gündoğan', 'Jack Grealish', 'Riyad Mahrez', 'Manuel Akanji', 'Nathan Aké', 'Aymeric Laporte', 'João Cancelo', 'Julian Alvarez', 'Oleksandr Zinchenko', 'Ferran Torres', 'Gabriel Jesus', 'Stefan Ortega', 'Rico Lewis', 'Oscar Bobb', 'Matheus Nunes'],
       positions: [['ST'], ['CAM', 'CM'], ['CDM'], ['CB'], ['GK'], ['CAM', 'RW'], ['CAM', 'LW', 'RW'], ['CB', 'CDM'], ['RB'], ['CM'], ['LW'], ['RW'], ['CB'], ['CB', 'LB'], ['CB'], ['LB', 'RB'], ['ST'], ['LB'], ['RW', 'ST'], ['ST'], ['GK'], ['RB'], ['RW'], ['CM']],
       ratings: [97, 97, 96, 93, 92, 94, 93, 91, 90, 90, 88, 88, 88, 87, 87, 87, 87, 85, 85, 85, 84, 84, 82, 82]
-    },
-    'PSG': {
-      names: ['Kylian Mbappé', 'Neymar Jr', 'Keylor Navas', 'Marquinhos', 'Álgrat Di María', 'Achraf Hakimi', 'Marco Verratti', 'Presnel Kimpembe', 'Thomas Meunier', 'Adrien Rabiot', 'Gregory van der Wiel', 'Alphonse Areola', 'Gonçalo Guedes', 'Jesé', 'Mauro Icardi', 'Pablo Sarabia', 'Leandro Paredes', 'Thilo Kehrer', 'Abdou Diallo', 'Idrissa Gueye', 'Colin Dagba', 'Sergio Rico', 'Danilo Pereira', 'Ander Herrera'],
-      positions: [['ST', 'LW'], ['LW', 'CAM'], ['GK'], ['CB'], ['RW', 'LW', 'CAM'], ['RB', 'RWB'], ['CM', 'CDM'], ['CB'], ['RB'], ['CM'], ['RB'], ['GK'], ['ST', 'LW'], ['ST'], ['ST'], ['RW', 'CAM'], ['CDM'], ['CB', 'RB'], ['CB', 'LB'], ['CDM', 'CM'], ['RB'], ['GK'], ['CDM', 'CB'], ['CM', 'CAM']],
-      ratings: [97, 94, 93, 92, 91, 91, 92, 88, 86, 86, 84, 85, 83, 80, 85, 85, 85, 84, 83, 85, 81, 80, 84, 84]
     }
   }
 };
