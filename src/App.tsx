@@ -135,6 +135,7 @@ export default function App() {
       playSound('spin');
 
       const currentDecade = spinResult.decade;
+      const currentClub = spinResult.club;
 
       setTimeout(() => {
         const draftedIds = gameState.squad.filter(p => p !== null).map(p => p!.id);
@@ -144,12 +145,16 @@ export default function App() {
         
         const uniqueClubs = Array.from(new Set(validClubs));
         
-        if (uniqueClubs.length === 0) {
+        // Force a change if possible
+        let availableClubs = uniqueClubs.filter(c => c !== currentClub);
+        if (availableClubs.length === 0) availableClubs = uniqueClubs;
+
+        if (availableClubs.length === 0) {
           setIsSpinning(false);
           return;
         }
 
-        const newClub = uniqueClubs[Math.floor(Math.random() * uniqueClubs.length)];
+        const newClub = availableClubs[Math.floor(Math.random() * availableClubs.length)];
         setSpinResult({ club: newClub, decade: currentDecade });
         playSound('lock');
 
@@ -168,6 +173,7 @@ export default function App() {
       playSound('spin');
 
       const currentClub = spinResult.club;
+      const currentDecade = spinResult.decade;
 
       setTimeout(() => {
         const draftedIds = gameState.squad.filter(p => p !== null).map(p => p!.id);
@@ -177,12 +183,16 @@ export default function App() {
         
         const uniqueDecades = Array.from(new Set(validDecades));
 
-        if (uniqueDecades.length === 0) {
+        // Force a change if possible
+        let availableDecades = uniqueDecades.filter(d => d !== currentDecade);
+        if (availableDecades.length === 0) availableDecades = uniqueDecades;
+
+        if (availableDecades.length === 0) {
           setIsSpinning(false);
           return;
         }
 
-        const newDecade = uniqueDecades[Math.floor(Math.random() * uniqueDecades.length)] as any;
+        const newDecade = availableDecades[Math.floor(Math.random() * availableDecades.length)] as any;
         setSpinResult({ club: currentClub, decade: newDecade });
         playSound('lock');
 
