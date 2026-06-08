@@ -116,7 +116,10 @@ export default function App() {
           ['LB', 'LWB'],
           ['RB', 'RWB'],
           ['CAM', 'CF'],
-          ['ST', 'CF']
+          ['ST', 'CF'],
+          ['LW', 'RW'], // Allow wingers to swap sides
+          ['ST', 'LW'], // Allow ST to play LW
+          ['ST', 'RW']  // Allow ST to play RW
       ];
       for (const pos of player.positions) {
           for (const pair of flexiblePairs) {
