@@ -275,7 +275,7 @@ export default function App() {
         {gameState.status === 'SIMULATION' && (
           <SimulationScreen 
             squad={gameState.squad as Player[]} 
-            onComplete={(elimBy, winner) => setGameState(prev => ({ ...prev, status: 'RESULTS', eliminatedBy: elimBy, tournamentWinner: winner }))}
+            onComplete={(elimBy, winner, finalStage) => setGameState(prev => ({ ...prev, status: 'RESULTS', eliminatedBy: elimBy, tournamentWinner: winner, currentStage: finalStage || prev.currentStage }))}
             results={results}
             setResults={setResults}
           />
@@ -662,13 +662,22 @@ function MatchScorers({ scorers, side }: { scorers?: string[], side: 'left' | 'r
   );
 }
 
-function SimulationScreen({ squad, onComplete, results, setResults }: { squad: Player[], onComplete: (eliminatedBy?: string, winner?: string) => void, results: MatchResult[], setResults: React.Dispatch<React.SetStateAction<MatchResult[]>> }) {
+function SimulationScreen({ squad, onComplete, results, setResults }: { squad: Player[], onComplete: (eliminatedBy?: string, winner?: string, finalStage?: any) => void, results: MatchResult[], setResults: React.Dispatch<React.SetStateAction<MatchResult[]>> }) {
   const [stage, setStage] = useState<'LEAGUE' | 'PLAYOFFS' | 'R16' | 'QF' | 'SF' | 'FINAL'>('LEAGUE');
   const [currentMatch, setCurrentMatch] = useState(0);
   const [isSimulating, setIsSimulating] = useState(true);
   const [isEliminated, setIsEliminated] = useState(false);
   const simStageRef = useRef<string | null>(null);
   const leagueOpponentsRef = useRef<{ name: string; rating: number }[] | null>(null);
+
+  const STAGE_MAP: Record<string, string> = {
+    'LEAGUE': 'LEAGUE',
+    'PLAYOFFS': 'PLAYOFF',
+    'R16': 'ROUND_OF_16',
+    'QF': 'QUARTER_FINAL',
+    'SF': 'SEMI_FINAL',
+    'FINAL': 'FINAL'
+  };
 
   useEffect(() => {
     if (isEliminated || !isSimulating) return;
@@ -709,7 +718,7 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
             setCurrentMatch(0);
           } else {
             setIsEliminated(true);
-            setTimeout(() => onComplete('League Table', 'Real Madrid'), 2000);
+            setTimeout(() => onComplete('League Table', 'Real Madrid', 'LEAGUE'), 2000);
           }
         }
       } else if (stage === 'PLAYOFFS' || stage === 'R16' || stage === 'QF' || stage === 'SF') {
@@ -741,7 +750,7 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
           const aggP = tie.results.reduce((acc, match) => acc + (match.isPlayerWin ? match.homeScore : match.awayScore), 0);
           const aggO = tie.results.reduce((acc, match) => acc + (match.isPlayerWin ? match.awayScore : match.homeScore), 0);
           const elimDetail = `${opponent.name} (Agg: ${aggP}-${aggO})`;
-          setTimeout(() => onComplete(elimDetail, 'Man City'), 2000);
+          setTimeout(() => onComplete(elimDetail, 'Man City', STAGE_MAP[stage]), 2000);
         }
       } else if (stage === 'FINAL') {
         if (simStageRef.current === stage) return;
@@ -754,7 +763,7 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
         const isWinner = res.isPlayerWin || (res.homeScore === res.awayScore && Math.random() > 0.5);
 
         setIsSimulating(false);
-        setTimeout(() => onComplete(isWinner ? undefined : finalOpponent, isWinner ? 'Your Squad' : finalOpponent), 3000);
+        setTimeout(() => onComplete(isWinner ? undefined : finalOpponent, isWinner ? 'Your Squad' : finalOpponent, 'FINAL'), 3000);
       }
     };
 
