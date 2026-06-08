@@ -8,6 +8,7 @@ import { FORMATIONS } from './data/formations';
 import { PLAYERS } from './data/players';
 import { SimulationEngine } from './engine';
 import confetti from 'canvas-confetti';
+import { Analytics } from '@vercel/analytics/react';
 
 export default function App() {
   const [gameState, setGameState] = useState<GameState>({
@@ -256,6 +257,7 @@ export default function App() {
           />
         )}
       </AnimatePresence>
+      <Analytics />
     </div>
   );
 }
@@ -770,7 +772,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
         <div ref={shareCardRef} className="bg-[#0f172a] text-white p-8 w-[400px] rounded-3xl font-sans">
           <div className="text-center mb-6">
              <div className="text-[10px] text-slate-400 uppercase tracking-widest">{isWinner ? 'CHAMPION' : 'ELIMINATED'}</div>
-             <div className="text-4xl font-black text-white my-1">{isWinner ? 'PERFECT RUN' : 'UCL CAMPAIGN'}</div>
+             <div className="text-4xl font-black text-white my-1">{isWinner && isUndefeated ? 'PERFECT RUN' : 'UCL CAMPAIGN'}</div>
              <div className="text-sm font-bold text-slate-300">
                 {finalMatch ? `Final: ${finalMatch.homeScore}-${finalMatch.awayScore} vs ${isWinner ? finalMatch.awayTeam : gameState.eliminatedBy?.split(' (')[0]}` : 'Tournament Summary'}
              </div>
@@ -783,8 +785,8 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
               <div key={i} className="bg-slate-800 p-2 rounded-xl flex items-center gap-3">
                 <div className="bg-ucl-neon text-ucl-dark px-1.5 py-0.5 rounded-md text-[9px] font-black w-7 text-center">{p?.positions[0]}</div>
                 <div className="min-w-0">
-                  <div className="text-xs font-bold text-white truncate">{p?.name}</div>
-                  <div className="text-[9px] text-slate-400 truncate">{p?.decade}</div>
+                  <div className="text-xs font-bold text-white truncate text-left">{p?.name}</div>
+                  <div className="text-[9px] text-slate-400 truncate text-left">{p?.decade}</div>
                 </div>
               </div>
             ))}
