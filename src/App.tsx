@@ -9,7 +9,6 @@ import { FORMATIONS } from './data/formations';
 import { PLAYERS } from './data/players';
 import { SimulationEngine } from './engine';
 import confetti from 'canvas-confetti';
-import { Analytics } from '@vercel/analytics/react';
 
 export default function App() {
   const [gameState, setGameState] = useState<GameState>({
