@@ -769,26 +769,27 @@ return (
       <div className="absolute top-[-9999px] left-[-9999px]">
         <div ref={shareCardRef} className="bg-[#0f172a] text-white p-8 w-[400px] rounded-3xl font-sans">
           <div className="text-center mb-6">
-             <div className="text-[10px] text-slate-400 uppercase tracking-widest">Projected Record</div>
-             <div className="text-5xl font-black text-white my-1">{wins}-{results.length - wins} <span className="text-green-500 text-3xl">A+</span></div>
-             <div className="text-[10px] text-slate-400 uppercase tracking-widest">Team OVR {squadRating}</div>
+             <div className="text-[10px] text-slate-400 uppercase tracking-widest">{isWinner ? 'CHAMPION' : 'ELIMINATED'}</div>
+             <div className="text-4xl font-black text-white my-1">{isWinner ? 'PERFECT RUN' : 'UCL CAMPAIGN'}</div>
+             <div className="text-sm font-bold text-slate-300">Final Record: {wins}-{results.length - wins}</div>
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-2 mb-6">
+            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Your XI ({gameState.formation?.name})</h4>
             {gameState.squad.map((p, i) => (
-              <div key={i} className="bg-slate-800 p-3 rounded-xl flex items-center gap-3">
-                <div className="bg-ucl-neon text-ucl-dark px-2 py-1 rounded-md text-[10px] font-black w-8 text-center">{p?.positions[0]}</div>
+              <div key={i} className="bg-slate-800 p-2 rounded-xl flex items-center gap-3">
+                <div className="bg-ucl-neon text-ucl-dark px-1.5 py-0.5 rounded-md text-[9px] font-black w-7 text-center">{p?.positions[0]}</div>
                 <div className="min-w-0">
-                  <div className="text-sm font-bold text-white truncate">{p?.name}</div>
-                  <div className="text-[10px] text-slate-400 truncate">{p?.club} · {p?.decade}</div>
+                  <div className="text-xs font-bold text-white truncate">{p?.name}</div>
+                  <div className="text-[9px] text-slate-400 truncate">{p?.decade}</div>
                 </div>
               </div>
             ))}
           </div>
           
-          <div className="mt-8 text-center border-t border-slate-700 pt-4">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Can you conquer the UCL?</div>
-            <div className="text-ucl-neon font-black text-xl mt-1">ucl-draft.com</div>
+          <div className="mt-4 text-center border-t border-slate-700 pt-4">
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Draft Your Legendary Team</div>
+            <div className="text-ucl-neon font-black text-lg mt-1">ucl-draft.com</div>
           </div>
         </div>
       </div>
@@ -887,7 +888,10 @@ return (
           <div className="grid grid-cols-1 gap-2 mb-6">
             {gameState.squad.map((p, i) => (
               <div key={i} className="text-xs bg-slate-800 p-3 rounded border border-slate-700 flex justify-between items-center">
-                <span className="font-bold truncate">{p?.name}</span>
+                <div className="flex flex-col">
+                  <span className="font-bold truncate">{p?.name}</span>
+                  <span className="text-[10px] text-slate-400">{p?.decade}</span>
+                </div>
                 <span className="text-ucl-gold font-black">{p?.rating}</span>
               </div>
             ))}
