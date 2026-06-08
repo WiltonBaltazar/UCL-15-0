@@ -15,7 +15,8 @@ export default function App() {
     formation: null,
     squad: Array(11).fill(null),
     results: [],
-    leagueTable: []
+    leagueTable: [],
+    currentStage: 'LEAGUE'
   });
 
   const [isSpinning, setIsSpinning] = useState(false);
@@ -118,7 +119,8 @@ export default function App() {
       formation: null,
       squad: Array(11).fill(null),
       results: [],
-      leagueTable: []
+      leagueTable: [],
+      currentStage: 'LEAGUE'
     });
     setResults([]);
     setSpinResult(null);
@@ -766,31 +768,70 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <div className="neon-card text-left">
-          <h3 className="text-ucl-neon font-bold mb-4 uppercase text-sm flex justify-between">
-            Drafted Squad
-            <span className="text-slate-400 font-normal normal-case">Form: {gameState.formation?.name}</span>
-          </h3>
-          <div className="grid grid-cols-2 gap-2">
+      {/* Tournament Summary moved above */}
+      <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 max-w-2xl mx-auto">
+        <h3 className="text-slate-300 font-bold mb-4 uppercase text-sm">Tournament Summary</h3>
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div className="text-2xl font-black text-white">{results.length}</div>
+            <div className="text-[10px] text-slate-500 uppercase tracking-widest">Matches</div>
+          </div>
+          <div>
+            <div className="text-2xl font-black text-green-500">{wins}</div>
+            <div className="text-[10px] text-slate-500 uppercase tracking-widest">Wins</div>
+          </div>
+          <div>
+            <div className="text-2xl font-black text-red-500">{results.length - wins}</div>
+            <div className="text-[10px] text-slate-500 uppercase tracking-widest">Losses/Draws</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Pitch Visualization */}
+        <div className="neon-card text-left p-6">
+          <h3 className="text-ucl-neon font-bold mb-6 uppercase text-sm">Tactical Setup: {gameState.formation?.name}</h3>
+          <div className="relative aspect-[3/4] bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white rounded-full"></div>
+            </div>
+            {gameState.formation?.positions.map((pos, idx) => {
+              const player = gameState.squad[idx];
+              return (
+                <div 
+                  key={pos.id}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
+                  style={{ top: pos.top, left: pos.left }}
+                >
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${player ? 'bg-ucl-neon border-white' : 'bg-slate-700 border-slate-600'}`}>
+                    {player ? (
+                      <span className="text-ucl-dark font-black text-[8px] truncate w-8 text-center">{player.name.split(' ').pop()}</span>
+                    ) : (
+                      <span className="text-[6px] font-bold text-slate-500">{pos.label}</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Drafted Player List */}
+        <div className="neon-card text-left p-6">
+          <h3 className="text-ucl-neon font-bold mb-6 uppercase text-sm">Drafted Squad</h3>
+          <div className="grid grid-cols-1 gap-2 mb-6">
             {gameState.squad.map((p, i) => (
-              <div key={i} className="text-xs bg-slate-800 p-2 rounded border border-slate-700 flex justify-between">
-                <span className="truncate">{p?.name}</span>
-                <span className="text-ucl-gold font-bold">{p?.rating}</span>
+              <div key={i} className="text-xs bg-slate-800 p-3 rounded border border-slate-700 flex justify-between items-center">
+                <span className="font-bold truncate">{p?.name}</span>
+                <span className="text-ucl-gold font-black">{p?.rating}</span>
               </div>
             ))}
           </div>
-          <div className="mt-6 pt-4 border-t border-slate-700 flex justify-between items-center">
-            <span className="text-slate-400">Team Rating</span>
+          <div className="pt-4 border-t border-slate-700 flex justify-between items-center">
+            <span className="text-slate-400 font-bold uppercase text-[10px]">Team Rating</span>
             <span className="text-3xl font-black text-ucl-gold">{squadRating}</span>
           </div>
-        </div>
-        
-        <div className="text-left bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-           <h3 className="text-slate-300 font-bold mb-4 uppercase text-sm">Tournament Summary</h3>
-           <p className="text-slate-400 text-sm">Matches Played: {results.length}</p>
-           <p className="text-slate-400 text-sm">Wins: {wins}</p>
-           <p className="text-slate-400 text-sm">Losses/Draws: {results.length - wins}</p>
         </div>
       </div>
     </motion.div>
