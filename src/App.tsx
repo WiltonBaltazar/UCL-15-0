@@ -20,10 +20,10 @@ const checkPositionCompatibility = (player: Player, slot: Position) => {
       ['RB', 'RWB'],
       ['CAM', 'CF'],
       ['ST', 'CF'],
-      ['CAM', 'ST'], // Allow CAM to play ST
-      ['LW', 'RW'], // Allow wingers to swap sides
-      ['ST', 'LW'], // Allow ST to play LW
-      ['ST', 'RW']  // Allow ST to play RW
+      ['CAM', 'ST'],
+      ['LW', 'RW'], 
+      ['LW', 'RM'],
+      ['RW', 'LM'],
   ];
   for (const pos of player.positions) {
       for (const pair of flexiblePairs) {
@@ -994,7 +994,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
                             <Share2 className="size-[18px] sm:size-5" /> Share
                         </button>
                         <button onClick={onReset} className="flex-1 px-8 py-3 sm:py-4 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-2xl sm:rounded-3xl font-black uppercase tracking-widest hover:bg-slate-700 hover:border-slate-600 transition-all text-xs sm:text-sm">
-                            New Draft
+                            Play Again
                         </button>
                     </div>
                 </div>
