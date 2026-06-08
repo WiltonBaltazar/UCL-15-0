@@ -12,7 +12,6 @@
   { "name": "Atletico Madrid", "rating": 87 },
   { "name": "Atalanta", "rating": 86 },
   { "name": "Juventus", "rating": 87 },
-  { "name": "Benfica", "rating": 85 },
   { "name": "Arsenal", "rating": 90 },
   { "name": "Chelsea", "rating": 88 },
   { "name": "Tottenham Hotspur", "rating": 86 },
@@ -53,5 +52,12 @@
   { "name": "Slavia Prague", "rating": 78 },
   { "name": "Copenhagen", "rating": 79 },
   { "name": "PAOK", "rating": 77 },
-  { "name": "Olympiacos", "rating": 79 }
+  { "name": "Olympiacos", "rating": 79 },
+  { "name": "Young Boys", "rating": 76 },
+  { "name": "Red Star Belgrade", "rating": 75 },
+  { "name": "Slovan Bratislava", "rating": 74 },
+  { "name": "Sturm Graz", "rating": 75 },
+  { "name": "Maccabi Tel Aviv", "rating": 74 },
+  { "name": "Bodo/Glimt", "rating": 73 },
+  { "name": "Ludogorets", "rating": 74 }
 ]

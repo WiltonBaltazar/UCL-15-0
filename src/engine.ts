@@ -72,17 +72,40 @@ export class SimulationEngine {
     const random = Math.random();
     let homeScore: number, awayScore: number, isPlayerWin: boolean;
 
-    // Standard match logic (no home bias)
-    const totalGoals = Math.floor(Math.random() * 4);
+    // More realistic goal distribution
+    const goalRange = Math.random() < 0.1 ? 6 : Math.random() < 0.3 ? 4 : 3;
+    const totalGoals = Math.floor(Math.random() * goalRange);
+    
     if (random < winProb) {
-        homeScore = Math.floor(Math.random() * (totalGoals + 1));
-        awayScore = totalGoals - homeScore;
-        isPlayerWin = homeScore > awayScore;
+        // Player wins the roll
+        const pScore = Math.floor(Math.random() * 3) + 1;
+        const oScore = Math.max(0, pScore - (Math.floor(Math.random() * 2)));
+        
+        if (isPlayerHome) {
+            homeScore = pScore;
+            awayScore = oScore;
+        } else {
+            homeScore = oScore;
+            awayScore = pScore;
+        }
     } else {
-        awayScore = Math.floor(Math.random() * (totalGoals + 1));
-        homeScore = totalGoals - awayScore;
-        isPlayerWin = homeScore > awayScore;
+        // Opponent wins the roll
+        const oScore = Math.floor(Math.random() * 3) + 1;
+        const pScore = Math.max(0, oScore - (Math.floor(Math.random() * 2)));
+        
+        if (isPlayerHome) {
+            homeScore = pScore;
+            awayScore = oScore;
+        } else {
+            homeScore = oScore;
+            awayScore = pScore;
+        }
     }
+
+    // Determine if it was actually a win (since scores can be equal)
+    const playerActualScore = isPlayerHome ? homeScore : awayScore;
+    const opponentActualScore = isPlayerHome ? awayScore : homeScore;
+    isPlayerWin = playerActualScore > opponentActualScore;
 
     // Handle Draws in Knockouts
     if (homeScore === awayScore && stage !== 'League') {
@@ -211,7 +234,9 @@ export class SimulationEngine {
 
   static calculateWinProbability(playerRating: number, opponentRating: number): number {
     const diff = playerRating - opponentRating;
-    return 1 / (1 + Math.pow(10, -diff / 20));
+    // Softer curve (25 instead of 30) and a significant player bias (+5.0 rating boost)
+    const biasedDiff = diff + 5.0;
+    return 1 / (1 + Math.pow(10, -biasedDiff / 25));
   }
 
   static calculateChemistry(squad: Player[]): number {
@@ -236,6 +261,24 @@ export class SimulationEngine {
 
     const allPotential = [...historicOpponents, ...MODERN_OPPONENTS];
     const unique = Array.from(new Map(allPotential.map(o => [o.name, o])).values());
+    
+    // Pot System for Balance
+    const pot1 = unique.filter(o => o.rating >= 89);
+    const pot2 = unique.filter(o => o.rating >= 85 && o.rating < 89);
+    const pot3 = unique.filter(o => o.rating >= 81 && o.rating < 85);
+    const pot4 = unique.filter(o => o.rating < 81);
+
+    const shuffle = (array: any[]) => [...array].sort(() => 0.5 - Math.random());
+
+    if (count === 8) {
+        // Return 2 from each pot
+        return [
+            ...shuffle(pot1).slice(0, 2),
+            ...shuffle(pot2).slice(0, 2),
+            ...shuffle(pot3).slice(0, 2),
+            ...shuffle(pot4).slice(0, 2)
+        ].sort(() => 0.5 - Math.random());
+    }
     
     return unique.sort(() => 0.5 - Math.random()).slice(0, count);
   }

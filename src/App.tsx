@@ -694,16 +694,23 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
           setResults(prev => [...prev, res]);
           setCurrentMatch(prev => prev + 1);
         } else {
-          const wins = results.filter(r => r.isPlayerWin).length;
-          if (wins >= 6) {
+          const points = results.reduce((acc, r) => {
+            const playerScored = r.homeTeam === 'Your Team' ? r.homeScore : r.awayScore;
+            const opponentScored = r.homeTeam === 'Your Team' ? r.awayScore : r.homeScore;
+            if (playerScored > opponentScored) return acc + 3;
+            if (playerScored === opponentScored) return acc + 1;
+            return acc;
+          }, 0);
+
+          if (points >= 16) {
             setStage('R16');
             setCurrentMatch(0);
-          } else if (wins >= 3) {
+          } else if (points >= 8) {
             setStage('PLAYOFFS');
             setCurrentMatch(0);
           } else {
             setIsEliminated(true);
-            setTimeout(() => onComplete('League Standings', 'Real Madrid'), 2000);
+            setTimeout(() => onComplete('League Table', 'Real Madrid'), 2000);
           }
         }
       } else if (stage === 'PLAYOFFS' || stage === 'R16' || stage === 'QF' || stage === 'SF') {
@@ -805,6 +812,8 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
   const [showHistory, setShowHistory] = useState(false);
   const shareCardRef = useRef<HTMLDivElement>(null);
   const wins = results.filter(r => r.isPlayerWin).length;
+  const draws = results.filter(r => r.homeScore === r.awayScore && !r.penaltyOutcome).length;
+  const losses = results.length - wins - draws;
   const isWinner = results.some(r => r.stage === 'Final' && r.isPlayerWin);
   const isUndefeated = results.every(r => r.isPlayerWin);
   const squadRating = Math.round(gameState.squad.reduce((acc, p) => acc + (p?.rating || 0), 0) / 11);
@@ -969,10 +978,10 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
                         <div className="grid grid-cols-1 gap-4 sm:gap-6">
                             <div className="flex justify-between items-center p-4 sm:p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
                                 <span className="text-slate-400 font-black uppercase text-[9px] sm:text-[10px] tracking-widest">Record</span>
-                                <div className="flex items-center gap-2 sm:gap-3">
-                                    <span className="text-xl sm:text-2xl font-black text-green-500">{wins}W</span>
-                                    <span className="text-slate-700 font-bold">/</span>
-                                    <span className="text-xl sm:text-2xl font-black text-red-500">{results.length - wins}L</span>
+                                <div className="flex items-center gap-1.5 sm:gap-2">
+                                    <span className="text-lg sm:text-xl font-black text-green-500">{wins}W</span>
+                                    <span className="text-lg sm:text-xl font-black text-slate-500">{draws}D</span>
+                                    <span className="text-lg sm:text-xl font-black text-red-500">{losses}L</span>
                                 </div>
                             </div>
                             <div className="flex justify-between items-center p-4 sm:p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
