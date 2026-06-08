@@ -627,20 +627,27 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
           name: stage === 'PLAYOFFS' ? 'Benfica' : stage === 'R16' ? 'AC Milan' : stage === 'QF' ? 'Bayern Munich' : 'Man City', 
           rating: stage === 'PLAYOFFS' ? 86 : stage === 'R16' ? 89 : stage === 'QF' ? 92 : 94 
         };
-        const leg1 = SimulationEngine.simulateMatch(squad, opponent.name, opponent.rating, `${stage} L1`);
-        const leg2 = SimulationEngine.simulateMatch(squad, opponent.name, opponent.rating, `${stage} L2`);
         
-        const aggregatePlayer = leg1.homeScore + leg2.awayScore;
-        const aggregateOpponent = leg1.awayScore + leg2.homeScore;
+        // Use the new two-legged tie logic
+        const tie = SimulationEngine.simulateTwoLeggedTie(
+            squad,
+            opponent.name,
+            opponent.rating,
+            true, // Assuming player is higher ranked for now
+            stage
+        );
         
-        setResults(prev => [...prev, leg1, leg2]);
+        setResults(prev => [...prev, ...tie.results]);
         
-        if (aggregatePlayer > aggregateOpponent) {
+        if (tie.isPlayerWin) {
           const nextStageMap: any = { PLAYOFFS: 'R16', R16: 'QF', QF: 'SF', SF: 'FINAL' };
           setStage(nextStageMap[stage]);
         } else {
           setIsEliminated(true);
-          const elimDetail = `${opponent.name} (Agg: ${aggregatePlayer}-${aggregateOpponent})`;
+          // Helper to get aggregate score
+          const aggP = tie.results.reduce((acc, match) => acc + (match.isPlayerWin ? match.homeScore : match.awayScore), 0);
+          const aggO = tie.results.reduce((acc, match) => acc + (match.isPlayerWin ? match.awayScore : match.homeScore), 0);
+          const elimDetail = `${opponent.name} (Agg: ${aggP}-${aggO})`;
           setTimeout(() => onComplete(elimDetail, 'Man City'), 2000);
         }
       } else if (stage === 'FINAL') {
@@ -672,12 +679,19 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
             key={i}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            className={`p-3 rounded-lg border flex justify-between items-center text-sm ${m.isPlayerWin ? 'bg-green-900/20 border-green-800' : m.homeScore === m.awayScore ? 'bg-slate-800/50 border-slate-700' : 'bg-red-950/40 border-red-800'}`}
+            className={`p-3 rounded-lg border flex flex-col gap-1 text-sm ${m.isPlayerWin ? 'bg-green-900/20 border-green-800' : (m.homeScore === m.awayScore && !m.penaltyOutcome) ? 'bg-slate-800/50 border-slate-700' : 'bg-red-950/40 border-red-800'}`}
           >
-            <span className="text-[10px] text-slate-500 uppercase font-bold w-16">{m.stage}</span>
-            <span className="flex-1 text-right pr-4 font-bold">{m.homeTeam}</span>
-            <span className="bg-slate-900 px-3 py-1 rounded font-black text-ucl-neon border border-slate-700">{m.homeScore} - {m.awayScore}</span>
-            <span className="flex-1 text-left pl-4 font-bold">{m.awayTeam}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] text-slate-500 uppercase font-bold w-16">{m.stage}</span>
+              <span className="flex-1 text-right pr-4 font-bold">{m.homeTeam}</span>
+              <span className="bg-slate-900 px-3 py-1 rounded font-black text-ucl-neon border border-slate-700">{m.homeScore} - {m.awayScore}</span>
+              <span className="flex-1 text-left pl-4 font-bold">{m.awayTeam}</span>
+            </div>
+            {m.penaltyOutcome && (
+              <div className="text-center text-[10px] uppercase font-bold text-slate-300 mt-1 border-t border-slate-700 pt-1">
+                {m.penaltyOutcome.playerWin ? 'Won' : 'Lost'} on Penalties ({m.penaltyOutcome.homePenalties} - {m.penaltyOutcome.awayPenalties})
+              </div>
+            )}
           </motion.div>
         ))}
       </div>
@@ -697,6 +711,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
   const wins = results.filter(r => r.isPlayerWin).length;
   const isWinner = results.some(r => r.stage === 'Final' && r.isPlayerWin);
   const squadRating = Math.round(gameState.squad.reduce((acc, p) => acc + (p?.rating || 0), 0) / 11);
+  const finalMatch = results.find(r => r.stage === 'Final');
 
   const downloadScreenshot = async () => {
     if (resultRef.current) {
@@ -719,29 +734,44 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
       animate={{ opacity: 1, scale: 1 }}
       className="max-w-4xl w-full text-center mt-10 pb-20 bg-ucl-dark p-8 rounded-3xl"
     >
-      <div className="mb-10">
+      <div className="mb-8">
         {isWinner ? (
           <div className="flex flex-col items-center">
-            <Trophy size={100} className="text-ucl-gold mb-4" />
-            <h2 className="text-6xl font-black text-ucl-neon mb-2">CHAMPIONS!</h2>
-            <p className="text-xl text-ucl-gold">You achieved the perfect run.</p>
+            <Trophy size={80} className="text-ucl-gold mb-4" />
+            <h2 className="text-5xl font-black text-ucl-neon mb-2">CHAMPIONS!</h2>
+            {finalMatch && (
+              <div className="bg-slate-900 px-6 py-2 rounded-xl border border-ucl-neon/30 text-ucl-neon font-black text-xl mt-2">
+                Final: {finalMatch.homeScore} - {finalMatch.awayScore}
+              </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center">
-            <Zap size={80} className="text-slate-500 mb-4" />
-            <h2 className="text-5xl font-black mb-2 uppercase">Knocked Out</h2>
+            <Zap size={60} className="text-slate-500 mb-4" />
+            <h2 className="text-4xl font-black mb-2 uppercase">Knocked Out</h2>
             <div className="bg-red-950/20 border border-red-900/50 px-6 py-3 rounded-2xl mb-4">
               <p className="text-red-400 font-bold text-sm">Eliminated by: <span className="text-white uppercase tracking-widest">{gameState.eliminatedBy}</span></p>
             </div>
             <p className="text-slate-400 text-sm">Tournament Winner: <span className="text-ucl-gold font-bold">{gameState.tournamentWinner}</span></p>
-            <p className="text-slate-500 mt-2 text-xs">Final Record: {wins} Wins, {results.length - wins} Losses/Draws</p>
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+      <div className="flex flex-row gap-4 mb-8 justify-center">
+        <button onClick={downloadScreenshot} className="btn-primary flex-1 max-w-[200px] flex items-center justify-center gap-3 py-3">
+          <Share2 size={18} /> Share
+        </button>
+        <button onClick={onReset} className="flex-1 max-w-[200px] px-8 py-3 bg-slate-800 rounded-full font-bold hover:bg-slate-700 transition-colors">
+          Play Again
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div className="neon-card text-left">
-          <h3 className="text-ucl-neon font-bold mb-4 uppercase text-sm">Drafted Squad</h3>
+          <h3 className="text-ucl-neon font-bold mb-4 uppercase text-sm flex justify-between">
+            Drafted Squad
+            <span className="text-slate-400 font-normal normal-case">Form: {gameState.formation?.name}</span>
+          </h3>
           <div className="grid grid-cols-2 gap-2">
             {gameState.squad.map((p, i) => (
               <div key={i} className="text-xs bg-slate-800 p-2 rounded border border-slate-700 flex justify-between">
@@ -755,14 +785,12 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
             <span className="text-3xl font-black text-ucl-gold">{squadRating}</span>
           </div>
         </div>
-
-        <div className="flex flex-col gap-4">
-          <button onClick={downloadScreenshot} className="btn-primary w-full flex items-center justify-center gap-3">
-            <Share2 size={20} /> Share Screenshot
-          </button>
-          <button onClick={onReset} className="px-8 py-4 bg-slate-800 rounded-full font-bold hover:bg-slate-700 transition-colors w-full">
-            Play Again
-          </button>
+        
+        <div className="text-left bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+           <h3 className="text-slate-300 font-bold mb-4 uppercase text-sm">Tournament Summary</h3>
+           <p className="text-slate-400 text-sm">Matches Played: {results.length}</p>
+           <p className="text-slate-400 text-sm">Wins: {wins}</p>
+           <p className="text-slate-400 text-sm">Losses/Draws: {results.length - wins}</p>
         </div>
       </div>
     </motion.div>

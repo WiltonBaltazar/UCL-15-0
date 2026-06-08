@@ -32,6 +32,19 @@ export interface MatchResult {
   awayScore: number;
   isPlayerWin: boolean;
   stage: string;
+  penaltyOutcome?: { playerWin: boolean; homePenalties: number; awayPenalties: number };
+}
+
+export interface LeagueTableEntry {
+  teamName: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  points: number;
 }
 
 export interface GameState {
@@ -40,7 +53,8 @@ export interface GameState {
   formation: Formation | null;
   squad: (Player | null)[];
   results: MatchResult[];
-  leagueTable: any[]; // To be defined
+  leagueTable: LeagueTableEntry[];
+  currentStage: 'LEAGUE' | 'PLAYOFF' | 'ROUND_OF_16' | 'QUARTER_FINAL' | 'SEMI_FINAL' | 'FINAL';
   eliminatedBy?: string;
   tournamentWinner?: string;
 }
