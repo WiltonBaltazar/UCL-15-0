@@ -2,4 +2,5 @@
 nixPkgs = ["nodejs_22"]
 
 [variables]
-NODE_VERSION = "22"
+NIXPACKS_NODE_VERSION = "22.13"
+NODE_VERSION = "22.13"
