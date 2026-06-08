@@ -783,11 +783,11 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
         )}
       </div>
 
-      <div className="flex flex-row gap-4 mb-8 justify-center">
-        <button onClick={downloadScreenshot} className="btn-primary flex-1 max-w-[200px] flex items-center justify-center gap-3 py-3">
+      <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
+        <button onClick={downloadScreenshot} className="btn-primary w-full sm:max-w-[200px] flex items-center justify-center gap-3 py-3">
           <Share2 size={18} /> Share
         </button>
-        <button onClick={onReset} className="flex-1 max-w-[200px] px-8 py-3 bg-slate-800 rounded-full font-bold hover:bg-slate-700 transition-colors">
+        <button onClick={onReset} className="w-full sm:max-w-[200px] px-8 py-3 bg-slate-800 rounded-full font-bold hover:bg-slate-700 transition-colors">
           Play Again
         </button>
       </div>
