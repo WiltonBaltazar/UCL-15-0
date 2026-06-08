@@ -72,9 +72,6 @@ export class SimulationEngine {
     const random = Math.random();
     let homeScore: number, awayScore: number, isPlayerWin: boolean;
 
-    // More realistic goal distribution
-    const goalRange = Math.random() < 0.1 ? 6 : Math.random() < 0.3 ? 4 : 3;
-    
     if (random < winProb) {
         // Player wins the roll
         const pScore = Math.floor(Math.random() * 3) + 1;
