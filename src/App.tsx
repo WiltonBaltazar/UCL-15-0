@@ -635,6 +635,23 @@ function DraftScreen({
   );
 }
 
+function MatchScorers({ scorers, side }: { scorers?: string[], side: 'left' | 'right' }) {
+  if (!scorers || scorers.length === 0) return <div className="flex-1" />;
+  
+  const counts = scorers.reduce((acc, name) => {
+    acc[name] = (acc[name] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  return (
+    <div className={`text-[10px] text-slate-400 mt-0.5 flex flex-col ${side === 'left' ? 'items-end pr-4 text-right' : 'items-start pl-4 text-left'} flex-1`}>
+      {Object.entries(counts).map(([name, count]) => (
+        <span key={name} className="leading-tight">{name}{count > 1 ? ` (${count})` : ''}</span>
+      ))}
+    </div>
+  );
+}
+
 function SimulationScreen({ squad, onComplete, results, setResults }: { squad: Player[], onComplete: (eliminatedBy?: string, winner?: string) => void, results: MatchResult[], setResults: React.Dispatch<React.SetStateAction<MatchResult[]>> }) {
   const [stage, setStage] = useState<'LEAGUE' | 'PLAYOFFS' | 'R16' | 'QF' | 'SF' | 'FINAL'>('LEAGUE');
   const [currentMatch, setCurrentMatch] = useState(0);
@@ -748,6 +765,12 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
               <span className="bg-slate-900 px-3 py-1 rounded font-black text-ucl-neon border border-slate-700">{m.homeScore} - {m.awayScore}</span>
               <span className="flex-1 text-left pl-4 font-bold">{m.awayTeam}</span>
             </div>
+            <div className="flex justify-between items-start">
+              <div className="w-16 shrink-0" />
+              <MatchScorers scorers={m.homeScorers} side="left" />
+              <div className="w-16 shrink-0" />
+              <MatchScorers scorers={m.awayScorers} side="right" />
+            </div>
             {m.penaltyOutcome && (
               <div className="text-center text-[10px] uppercase font-bold text-slate-300 mt-1 border-t border-slate-700 pt-1">
                 {m.penaltyOutcome.playerWin ? 'Won' : 'Lost'} on Penalties ({m.penaltyOutcome.homePenalties} - {m.penaltyOutcome.awayPenalties})
@@ -815,31 +838,37 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="max-w-4xl w-full text-center mt-10 pb-20 p-8 rounded-3xl"
+      className="max-w-5xl w-full text-center mt-12 pb-24 p-6 sm:p-10 rounded-3xl"
     >
-      <div className="flex gap-4 justify-center mb-8">
+      <div className="flex gap-4 justify-center mb-12">
         <button 
            onClick={() => setShowHistory(!showHistory)}
-           className="px-6 py-2 bg-slate-800 rounded-full font-bold text-sm hover:bg-slate-700 transition-colors"
+           className="px-8 py-2.5 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-full font-bold text-sm hover:bg-slate-700 hover:border-ucl-neon/30 transition-all"
         >
-          {showHistory ? 'Hide Match History' : 'View All Matches'}
+          {showHistory ? 'Hide Match History' : 'View Full Match History'}
         </button>
       </div>
 
       {showHistory ? (
-        <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar mb-12">
           {results.map((m, i) => (
-            <div key={i} className={`p-3 rounded-lg border flex flex-col gap-1 text-sm ${m.isPlayerWin ? 'bg-green-900/20 border-green-800' : (m.homeScore === m.awayScore && !m.penaltyOutcome) ? 'bg-slate-800/50 border-slate-700' : 'bg-red-950/40 border-red-800'}`}>
+            <div key={i} className={`p-4 rounded-xl border flex flex-col gap-2 text-sm transition-all hover:scale-[1.01] ${m.isPlayerWin ? 'bg-green-900/10 border-green-800/50 shadow-[0_0_20px_rgba(22,163,74,0.05)]' : (m.homeScore === m.awayScore && !m.penaltyOutcome) ? 'bg-slate-800/40 border-slate-700' : 'bg-red-950/20 border-red-800/50'}`}>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] text-slate-500 uppercase font-bold w-16">{m.stage}</span>
-                <span className="flex-1 text-right pr-4 font-bold">{m.homeTeam}</span>
-                <span className="bg-slate-900 px-3 py-1 rounded font-black text-ucl-neon border border-slate-700">{m.homeScore} - {m.awayScore}</span>
-                <span className="flex-1 text-left pl-4 font-bold">{m.awayTeam}</span>
+                <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest w-20">{m.stage}</span>
+                <span className="flex-1 text-right pr-6 font-bold text-slate-200">{m.homeTeam}</span>
+                <span className="bg-slate-950/80 px-4 py-1.5 rounded-lg font-black text-ucl-neon border border-slate-700/50 min-w-[70px] shadow-inner">{m.homeScore} - {m.awayScore}</span>
+                <span className="flex-1 text-left pl-6 font-bold text-slate-200">{m.awayTeam}</span>
               </div>
-              {m.opponentFormation && <p className="text-[10px] text-slate-400 mt-1">Opponent: {m.opponentFormation}</p>}
+              <div className="flex justify-between items-start">
+                <div className="w-20 shrink-0" />
+                <MatchScorers scorers={m.homeScorers} side="left" />
+                <div className="w-20 shrink-0" />
+                <MatchScorers scorers={m.awayScorers} side="right" />
+              </div>
+              {m.opponentFormation && <p className="text-[9px] text-slate-500 mt-1 italic text-center uppercase tracking-tighter">Opponent: {m.opponentFormation}</p>}
               {m.penaltyOutcome && (
-                <div className="text-center text-[10px] uppercase font-bold text-slate-300 mt-1 border-t border-slate-700 pt-1">
-                  {m.penaltyOutcome.playerWin ? 'Won' : 'Lost'} on Penalties ({m.penaltyOutcome.homePenalties} - {m.penaltyOutcome.awayPenalties})
+                <div className="text-center text-[10px] uppercase font-black text-ucl-gold mt-2 border-t border-slate-700/30 pt-2 tracking-widest">
+                  {m.penaltyOutcome.playerWin ? 'Winner' : 'Defeat'} on Penalties ({m.penaltyOutcome.homePenalties} - {m.penaltyOutcome.awayPenalties})
                 </div>
               )}
             </div>
@@ -847,167 +876,156 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
         </div>
       ) : (
         <>
-            <div ref={shareCardRef} className="bg-slate-950 p-8 rounded-3xl border border-slate-800 mb-8">
-              <h1 className="text-5xl font-black mb-6 tracking-tighter text-white">
-                {isWinner ? 'CHAMPIONS!' : 'ELIMINATED'}
-              </h1>
-
-              {/* Last match result */}
-              {results.length > 0 && (
-                <div className={`mb-8 p-6 rounded-2xl border ${results[results.length-1].isPlayerWin ? 'bg-green-900/20 border-green-800' : 'bg-red-950/40 border-red-800'}`}>
-                  <h3 className="text-slate-400 font-bold uppercase text-xs mb-2">Last Game: {results[results.length-1].stage}</h3>
-                  <p className="text-xl font-bold">
-                     {results[results.length-1].homeScore} - {results[results.length-1].awayScore} vs {results[results.length-1].awayTeam}
-                  </p>
-                  {results[results.length-1].opponentFormation && (
-                    <p className="text-xs text-slate-500 mt-2">Opponent played: {results[results.length-1].opponentFormation}</p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="mb-8">
+            <div className="mb-16">
                 {isWinner ? (
                 <div className="flex flex-col items-center">
-                    <Trophy size={80} className="text-ucl-gold mb-4" />
-                    <h2 className="text-5xl font-black text-ucl-neon mb-2">CHAMPIONS!</h2>
+                    <div className="relative mb-6">
+                        <Trophy size={100} className="text-ucl-gold relative z-10" />
+                        <div className="absolute inset-0 bg-ucl-gold/30 blur-3xl rounded-full scale-150 animate-pulse"></div>
+                    </div>
+                    <h2 className="text-6xl font-black text-glow-gold mb-4 tracking-tighter italic">CHAMPIONS OF EUROPE</h2>
                     {isUndefeated && (
                     <motion.div 
                         initial={{ scale: 0 }} animate={{ scale: 1 }}
-                        className="bg-ucl-gold text-ucl-dark font-black text-xs px-4 py-1 rounded-full uppercase tracking-widest mb-4"
+                        className="bg-ucl-gold text-ucl-dark font-black text-xs px-6 py-1.5 rounded-full uppercase tracking-[0.3em] mb-6 shadow-xl"
                     >
-                        Undefeated Run!
+                        The Perfect Run
                     </motion.div>
                     )}
                     {finalMatch && (
-                    <div className="bg-slate-900 px-6 py-2 rounded-xl border border-ucl-neon/30 text-ucl-neon font-black text-xl mt-2">
-                        Final: {finalMatch.homeScore} - {finalMatch.awayScore}
+                    <div className="bg-slate-900/60 backdrop-blur-md px-10 py-4 rounded-3xl border border-ucl-neon/40 text-ucl-neon font-black text-3xl mt-4 shadow-2xl flex items-center gap-6">
+                        <span className="text-sm uppercase tracking-widest text-slate-500">Final</span>
+                        {finalMatch.homeScore} - {finalMatch.awayScore}
+                        <span className="text-xs text-slate-400 font-medium">vs {finalMatch.awayTeam === 'Your Team' ? finalMatch.homeTeam : finalMatch.awayTeam}</span>
                     </div>
                     )}
                 </div>
                 ) : (
                 <div className="flex flex-col items-center">
-                    <Zap size={60} className="text-slate-500 mb-4" />
-                    <h2 className="text-4xl font-black mb-2 uppercase">Knocked Out</h2>
-                    <div className="bg-red-950/20 border border-red-900/50 px-6 py-3 rounded-2xl mb-4">
-                    <p className="text-red-400 font-bold text-sm">Eliminated by: <span className="text-white uppercase tracking-widest">{gameState.eliminatedBy}</span></p>
+                    <div className="p-8 rounded-full bg-slate-900/40 border border-slate-800 mb-8 relative">
+                        <Zap size={60} className="text-slate-600" />
                     </div>
-                    <p className="text-slate-400 text-sm">Tournament Winner: <span className="text-ucl-gold font-bold">{gameState.tournamentWinner}</span></p>
+                    <h2 className="text-5xl font-black mb-6 uppercase tracking-tighter text-slate-300 italic">Journey Ended</h2>
+                    <div className="bg-red-950/10 border border-red-900/30 px-10 py-4 rounded-3xl mb-6 backdrop-blur-sm shadow-xl">
+                        <p className="text-red-400 font-bold text-sm tracking-wide uppercase">Eliminated at <span className="text-white font-black">{gameState.currentStage.replace('_', ' ')}</span></p>
+                        <p className="text-[10px] text-red-500/60 uppercase font-black mt-1 tracking-[0.2em]">BY {gameState.eliminatedBy?.split(' (')[0]}</p>
+                    </div>
+                    <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">Tournament Winner: <span className="text-ucl-gold ml-2">{gameState.tournamentWinner}</span></p>
                 </div>
                 )}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
-                <button onClick={shareScreenshot} className="btn-primary w-full sm:max-w-[200px] flex items-center justify-center gap-3 py-3">
-                <Share2 size={18} /> Share
-                </button>
-                <button onClick={onReset} className="w-full sm:max-w-[200px] px-8 py-3 bg-slate-800 rounded-full font-bold hover:bg-slate-700 transition-colors">
-                Play Again
-                </button>
-            </div>
-            
-            <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 max-w-2xl mx-auto">
-                <h3 className="text-slate-300 font-bold mb-4 uppercase text-sm">Tournament Summary</h3>
-                <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                    <div className="text-2xl font-black text-white">{results.length}</div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-widest">Matches</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16 items-stretch">
+                {/* Tactical Setup Visualization */}
+                <div className="neon-card text-left p-8 flex flex-col h-full bg-slate-950/30 border-slate-800/50">
+                    <h3 className="text-ucl-neon font-black mb-8 uppercase text-xs tracking-[0.25em] flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-ucl-neon animate-pulse"></div>
+                        Tactical Setup: {gameState.formation?.name}
+                    </h3>
+                    <div className="relative aspect-[3/4] bg-slate-900/40 rounded-3xl overflow-hidden border border-slate-800/60 shadow-inner flex-1 pitch-container">
+                        <div className="absolute inset-0 opacity-10 pointer-events-none">
+                            <div className="absolute top-1/2 left-0 w-full h-px bg-white"></div>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white rounded-full"></div>
+                        </div>
+                        {gameState.formation?.positions.map((pos, idx) => {
+                            const player = gameState.squad[idx];
+                            return (
+                                <div 
+                                    key={pos.id}
+                                    className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
+                                    style={{ top: pos.top, left: pos.left }}
+                                >
+                                    <div className={`w-11 h-11 rounded-full flex items-center justify-center border shadow-lg transition-all ${player ? 'bg-ucl-neon border-white text-ucl-dark' : 'bg-slate-800 border-slate-700 text-slate-500'}`}>
+                                        {player ? (
+                                            <span className="font-black text-[9px] truncate w-9 text-center uppercase tracking-tighter">{player.name.split(' ').pop()}</span>
+                                        ) : (
+                                            <span className="text-[7px] font-black">{pos.label}</span>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
-                <div>
-                    <div className="text-2xl font-black text-green-500">{wins}</div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-widest">Wins</div>
-                </div>
-                <div>
-                    <div className="text-2xl font-black text-red-500">{results.length - wins}</div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-widest">Losses/Draws</div>
-                </div>
+
+                {/* Tournament Summary & Actions */}
+                <div className="flex flex-col gap-8 h-full">
+                    <div className="neon-card text-left p-8 bg-slate-950/30 border-slate-800/50 flex-1">
+                        <h3 className="text-ucl-neon font-black mb-10 uppercase text-xs tracking-[0.25em] flex items-center gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-ucl-neon animate-pulse"></div>
+                            Tournament Summary
+                        </h3>
+                        <div className="grid grid-cols-1 gap-6">
+                            <div className="flex justify-between items-center p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
+                                <span className="text-slate-400 font-black uppercase text-[10px] tracking-widest">Campaign Record</span>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-2xl font-black text-green-500">{wins}W</span>
+                                    <span className="text-slate-700 font-bold">/</span>
+                                    <span className="text-2xl font-black text-red-500">{results.length - wins}L</span>
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-center p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
+                                <span className="text-slate-400 font-black uppercase text-[10px] tracking-widest">Squad Strength</span>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-3xl font-black text-ucl-gold">{squadRating}</span>
+                                    <span className="text-[8px] text-slate-600 uppercase font-black tracking-tighter">Avg Rating</span>
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-center p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
+                                <span className="text-slate-400 font-black uppercase text-[10px] tracking-widest">Matches Played</span>
+                                <span className="text-2xl font-black text-white">{results.length}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <button onClick={shareScreenshot} className="btn-primary flex-1 flex items-center justify-center gap-3 py-4 text-base font-black uppercase tracking-widest">
+                            <Share2 size={20} /> Share Result
+                        </button>
+                        <button onClick={onReset} className="flex-1 px-8 py-4 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-3xl font-black uppercase tracking-widest hover:bg-slate-700 hover:border-slate-600 transition-all text-sm">
+                            New Draft
+                        </button>
+                    </div>
                 </div>
             </div>
             
             {/* Hidden Share Card Template - keep in DOM for screenshotting */}
             <div className="absolute top-[-9999px] left-[-9999px]">
-                <div ref={shareCardRef} className="bg-[#0f172a] text-white p-8 w-[400px] rounded-3xl font-sans">
-                <div className="text-center mb-6">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-widest">{isWinner ? 'CHAMPION' : 'ELIMINATED'}</div>
-                    <div className="text-4xl font-black text-white my-1">{isWinner && isUndefeated ? 'PERFECT RUN' : 'UCL CAMPAIGN'}</div>
-                    <div className="text-sm font-bold text-slate-300">
-                        {finalMatch ? `Final: ${finalMatch.homeScore}-${finalMatch.awayScore} vs ${isWinner ? finalMatch.awayTeam : gameState.eliminatedBy?.split(' (')[0]}` : 'Tournament Summary'}
-                    </div>
-                    <div className="text-xs text-slate-400 mt-1">Record: {wins}-{results.length - wins}</div>
-                </div>
-                
-                <div className="space-y-2 mb-6">
-                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Your XI ({gameState.formation?.name})</h4>
-                    {gameState.squad.map((p, i) => (
-                    <div key={i} className="bg-slate-800 p-2 rounded-xl flex items-center gap-3">
-                        <div className="bg-ucl-neon text-ucl-dark px-1.5 py-0.5 rounded-md text-[9px] font-black w-7 text-center">{p?.positions[0]}</div>
-                        <div className="min-w-0">
-                        <div className="text-xs font-bold text-white truncate text-left">{p?.name}</div>
-                        <div className="text-[9px] text-slate-400 truncate text-left">{p?.decade}</div>
+                <div ref={shareCardRef} className="bg-[#020617] text-white p-10 w-[500px] rounded-[40px] font-sans border border-slate-800 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-ucl-neon/5 blur-[100px] rounded-full"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-ucl-gold/5 blur-[100px] rounded-full"></div>
+                    
+                    <div className="text-center mb-10 relative z-10">
+                        <div className="text-[10px] text-ucl-gold font-black uppercase tracking-[0.4em] mb-2">{isWinner ? '🏆 EUROPEAN CHAMPION 🏆' : 'TOUR CAMPAIGN'}</div>
+                        <div className="text-5xl font-black text-white italic tracking-tighter mb-4">{isWinner && isUndefeated ? 'PERFECT SEASON' : 'UCL DRAFT RUN'}</div>
+                        <div className="flex items-center justify-center gap-4">
+                            <div className="h-px w-12 bg-slate-800"></div>
+                            <div className="text-xs font-black text-slate-400 uppercase tracking-widest">Final Record: {wins}W - {results.length - wins}L</div>
+                            <div className="h-px w-12 bg-slate-800"></div>
                         </div>
                     </div>
-                    ))}
-                </div>
-                
-                <div className="mt-4 text-center border-t border-slate-700 pt-4">
-                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Draft Your Legendary Team</div>
-                    <div className="text-ucl-neon font-black text-lg mt-1">ucl-draft.com</div>
-                </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-10 relative z-10">
+                        {gameState.squad.map((p, i) => (
+                            <div key={i} className="bg-slate-900/80 border border-slate-800/50 p-3 rounded-2xl flex items-center gap-3">
+                                <div className="bg-ucl-neon/20 text-ucl-neon border border-ucl-neon/30 px-2 py-0.5 rounded-lg text-[9px] font-black w-8 text-center">{p?.positions[0]}</div>
+                                <div className="min-w-0">
+                                    <div className="text-[11px] font-black text-white truncate text-left uppercase tracking-tight">{p?.name}</div>
+                                    <div className="text-[8px] text-slate-500 font-bold uppercase tracking-widest text-left">{p?.decade}</div>
+                                </div>
+                                <div className="ml-auto text-ucl-gold font-black text-xs">{p?.rating}</div>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div className="mt-10 text-center border-t border-slate-800 pt-8 relative z-10">
+                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-2">Build Your Legendary XI</div>
+                        <div className="text-ucl-neon font-black text-2xl tracking-tighter italic">UCL-DRAFT.APP</div>
+                    </div>
                 </div>
             </div>
         </>
       )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Pitch Visualization */}
-        <div className="neon-card text-left p-6">
-          <h3 className="text-ucl-neon font-bold mb-6 uppercase text-sm">Tactical Setup: {gameState.formation?.name}</h3>
-          <div className="relative aspect-[3/4] bg-slate-800/50 rounded-2xl overflow-hidden border border-slate-700">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white"></div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white rounded-full"></div>
-            </div>
-            {gameState.formation?.positions.map((pos, idx) => {
-              const player = gameState.squad[idx];
-              return (
-                <div 
-                  key={pos.id}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
-                  style={{ top: pos.top, left: pos.left }}
-                >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border ${player ? 'bg-ucl-neon border-white' : 'bg-slate-700 border-slate-600'}`}>
-                    {player ? (
-                      <span className="text-ucl-dark font-black text-[8px] truncate w-8 text-center">{player.name.split(' ').pop()}</span>
-                    ) : (
-                      <span className="text-[6px] font-bold text-slate-500">{pos.label}</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Drafted Player List */}
-        <div className="neon-card text-left p-6">
-          <h3 className="text-ucl-neon font-bold mb-6 uppercase text-sm">Drafted Squad</h3>
-          <div className="grid grid-cols-1 gap-2 mb-6">
-            {gameState.squad.map((p, i) => (
-              <div key={i} className="text-xs bg-slate-800 p-3 rounded border border-slate-700 flex justify-between items-center">
-                <div className="flex flex-col">
-                  <span className="font-bold truncate">{p?.name}</span>
-                  <span className="text-[10px] text-slate-400">{p?.decade}</span>
-                </div>
-                <span className="text-ucl-gold font-black">{p?.rating}</span>
-              </div>
-            ))}
-          </div>
-          <div className="pt-4 border-t border-slate-700 flex justify-between items-center">
-            <span className="text-slate-400 font-bold uppercase text-[10px]">Team Rating</span>
-            <span className="text-3xl font-black text-ucl-gold">{squadRating}</span>
-          </div>
-        </div>
-      </div>
     </motion.div>
   );
 }

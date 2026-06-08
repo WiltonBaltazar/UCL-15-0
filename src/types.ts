@@ -30,6 +30,8 @@ export interface MatchResult {
   awayTeam: string;
   homeScore: number;
   awayScore: number;
+  homeScorers?: string[];
+  awayScorers?: string[];
   isPlayerWin: boolean;
   stage: string;
   opponentFormation?: string;

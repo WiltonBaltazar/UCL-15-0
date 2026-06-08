@@ -1,6 +1,9 @@
 import type { Player, MatchResult, LeagueTableEntry } from './types';
 import { PLAYERS, CLUBS } from './data/players';
 import { FORMATIONS } from './data/formations';
+import modernOpponents from './data/modern_opponents.json';
+
+const MODERN_OPPONENTS: { name: string; rating: number }[] = modernOpponents;
 
 export class SimulationEngine {
   static calculateStandings(results: MatchResult[]): LeagueTableEntry[] {
@@ -67,7 +70,7 @@ export class SimulationEngine {
     
     // Simulate match
     const random = Math.random();
-    let homeScore, awayScore, isPlayerWin;
+    let homeScore: number, awayScore: number, isPlayerWin: boolean;
 
     // Standard match logic (no home bias)
     const totalGoals = Math.floor(Math.random() * 4);
@@ -93,15 +96,54 @@ export class SimulationEngine {
         }
     }
 
+    const homeScorers = isPlayerHome 
+        ? this.pickScorers(playerSquad, homeScore)
+        : this.pickOpponentScorers(opponentName, homeScore);
+    
+    const awayScorers = isPlayerHome
+        ? this.pickOpponentScorers(opponentName, awayScore)
+        : this.pickScorers(playerSquad, awayScore);
+
     return {
       homeTeam: isPlayerHome ? 'Your Team' : opponentName,
       awayTeam: isPlayerHome ? opponentName : 'Your Team',
       homeScore,
       awayScore,
+      homeScorers,
+      awayScorers,
       isPlayerWin,
       stage,
       opponentFormation
     };
+  }
+
+  static pickScorers(squad: Player[], goalCount: number): string[] {
+    const scorers: string[] = [];
+    const attackers = squad.filter(p => p && p.positions.some(pos => ['ST', 'CF', 'LW', 'RW', 'CAM', 'LM', 'RM'].includes(pos)));
+    const others = squad.filter(p => p && !attackers.includes(p));
+
+    for (let i = 0; i < goalCount; i++) {
+        const rand = Math.random();
+        if (rand < 0.8 && attackers.length > 0) {
+            scorers.push(attackers[Math.floor(Math.random() * attackers.length)].name);
+        } else if (others.length > 0) {
+            const nonGK = others.filter(p => !p.positions.includes('GK'));
+            if (nonGK.length > 0 && Math.random() < 0.98) {
+                scorers.push(nonGK[Math.floor(Math.random() * nonGK.length)].name);
+            } else {
+                scorers.push(others[Math.floor(Math.random() * others.length)].name);
+            }
+        } else if (attackers.length > 0) {
+             scorers.push(attackers[Math.floor(Math.random() * attackers.length)].name);
+        }
+    }
+    return scorers;
+  }
+
+  static pickOpponentScorers(clubName: string, goalCount: number): string[] {
+      const clubPlayers = PLAYERS.filter(p => p.club === clubName);
+      if (clubPlayers.length === 0) return Array(goalCount).fill('Opponent Player');
+      return this.pickScorers(clubPlayers, goalCount);
   }
 
   static simulateTwoLeggedTie(
@@ -186,19 +228,20 @@ export class SimulationEngine {
   }
 
   static getUniqueOpponents(count: number): { name: string; rating: number }[] {
-    const shuffled = [...CLUBS].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count).map(club => {
+    const historicOpponents = CLUBS.map(club => {
         const clubPlayers = PLAYERS.filter(p => p.club === club);
         const avgRating = clubPlayers.reduce((acc, p) => acc + (p?.rating || 0), 0) / clubPlayers.length;
         return { name: club, rating: Math.round(avgRating) };
     });
+
+    const allPotential = [...historicOpponents, ...MODERN_OPPONENTS];
+    const unique = Array.from(new Map(allPotential.map(o => [o.name, o])).values());
+    
+    return unique.sort(() => 0.5 - Math.random()).slice(0, count);
   }
 
   static getLeagueOpponent(_matchIndex: number): { name: string; rating: number } {
-    const club = CLUBS[Math.floor(Math.random() * CLUBS.length)];
-    const clubPlayers = PLAYERS.filter(p => p.club === club);
-    const avgRating = clubPlayers.reduce((acc, p) => acc + p.rating, 0) / clubPlayers.length;
-    
-    return { name: club, rating: Math.round(avgRating) };
+    const opponents = this.getUniqueOpponents(1);
+    return opponents[0];
   }
 }
