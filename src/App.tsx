@@ -20,7 +20,6 @@ const checkPositionCompatibility = (player: Player, slot: Position) => {
       ['RB', 'RWB'],
       ['CAM', 'CF'],
       ['ST', 'CF'],
-      ['CAM', 'ST'],
       ['LW', 'RW'], 
       ['LW', 'RM'],
       ['RW', 'LM'],
