@@ -55,6 +55,7 @@ export interface GameState {
   squad: (Player | null)[];
   results: MatchResult[];
   leagueTable: LeagueTableEntry[];
+  leagueOpponents?: { name: string; rating: number }[];
   currentStage: 'LEAGUE' | 'PLAYOFF' | 'ROUND_OF_16' | 'QUARTER_FINAL' | 'SEMI_FINAL' | 'FINAL';
   eliminatedBy?: string;
   tournamentWinner?: string;

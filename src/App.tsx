@@ -641,12 +641,18 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
   const [isSimulating, setIsSimulating] = useState(true);
   const [isEliminated, setIsEliminated] = useState(false);
   const simStageRef = useRef<string | null>(null);
+  const leagueOpponentsRef = useRef<{ name: string; rating: number }[] | null>(null);
 
   useEffect(() => {
     if (isEliminated || !isSimulating) return;
 
     const runSim = async () => {
       if (stage === 'LEAGUE') {
+        if (!leagueOpponentsRef.current) {
+            leagueOpponentsRef.current = SimulationEngine.getUniqueOpponents(8);
+        }
+        const opponents = leagueOpponentsRef.current;
+        
         if (currentMatch < 8) {
           // If we are already ahead of currentMatch in results, we've already done this
           if (results.length > currentMatch) {
@@ -655,7 +661,7 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
           }
 
           await new Promise(r => setTimeout(r, 800));
-          const opponent = SimulationEngine.getLeagueOpponent(currentMatch);
+          const opponent = opponents[currentMatch];
           const res = SimulationEngine.simulateMatch(squad, opponent.name, opponent.rating, 'League', true);
           setResults(prev => [...prev, res]);
           setCurrentMatch(prev => prev + 1);

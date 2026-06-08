@@ -185,6 +185,15 @@ export class SimulationEngine {
     return Math.min(chemistry, 50); // Cap bonus
   }
 
+  static getUniqueOpponents(count: number): { name: string; rating: number }[] {
+    const shuffled = [...CLUBS].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count).map(club => {
+        const clubPlayers = PLAYERS.filter(p => p.club === club);
+        const avgRating = clubPlayers.reduce((acc, p) => acc + (p?.rating || 0), 0) / clubPlayers.length;
+        return { name: club, rating: Math.round(avgRating) };
+    });
+  }
+
   static getLeagueOpponent(_matchIndex: number): { name: string; rating: number } {
     const club = CLUBS[Math.floor(Math.random() * CLUBS.length)];
     const clubPlayers = PLAYERS.filter(p => p.club === club);
