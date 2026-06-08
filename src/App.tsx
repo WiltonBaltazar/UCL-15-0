@@ -240,7 +240,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4 bg-white dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen w-full overflow-x-hidden flex flex-col items-center p-2 sm:p-4 bg-white dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
       <AnimatePresence mode="wait">
         {gameState.status === 'START' && (
           <StartScreen onStart={startDraft} />
@@ -295,26 +295,26 @@ function StartScreen({ onStart }: { onStart: (mode: 'CLASSIC' | 'BALL_KNOWLEDGE'
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -30 }}
-      className="max-w-2xl w-full text-center flex flex-col items-center justify-center min-h-[80vh]"
+      className="max-w-2xl w-full text-center flex flex-col items-center justify-center min-h-[80vh] px-4"
     >
       <div className="flex justify-center mb-8">
         <div className="relative">
-          <Trophy size={100} className="text-ucl-gold animate-pulse relative z-10" />
+          <Trophy className="size-20 sm:size-[100px] text-ucl-gold animate-pulse relative z-10" />
           <div className="absolute inset-0 bg-ucl-gold/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
         </div>
       </div>
-      <h1 className="text-7xl font-black mb-6 tracking-tighter italic text-glow">UCL DRAFT</h1>
-      <p className="text-2xl text-slate-400 mb-12 max-w-lg leading-relaxed font-medium">Draft your legendary team and conquer the UCL.</p>
+      <h1 className="text-5xl sm:text-7xl font-black mb-6 tracking-tighter italic text-glow leading-none">UCL DRAFT</h1>
+      <p className="text-lg sm:text-2xl text-slate-400 mb-12 max-w-lg leading-relaxed font-medium">Draft your legendary team and conquer the UCL.</p>
       
-      <div className="flex flex-col sm:flex-row gap-6 w-full max-w-2xl">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 w-full max-w-2xl">
         <div className="flex-1 flex flex-col gap-3">
           <button 
             onClick={() => onStart('CLASSIC')}
-            className="btn-primary w-full flex items-center justify-center gap-3"
+            className="btn-primary w-full flex items-center justify-center gap-3 py-4"
           >
             <Zap size={20} /> Classic
           </button>
-          <p className="text-[11px] text-slate-500 px-4">Build your dream team using historical ratings to dominate the UCL.</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-500 px-4">Build your dream team using historical ratings to dominate the UCL.</p>
         </div>
         <div className="flex-1 flex flex-col gap-3">
           <button 
@@ -323,7 +323,7 @@ function StartScreen({ onStart }: { onStart: (mode: 'CLASSIC' | 'BALL_KNOWLEDGE'
           >
             <BarChart3 size={20} /> Ball Knowledge
           </button>
-          <p className="text-[11px] text-slate-500 px-4">Test your heritage. Draft based on legacy and cult status, not just ratings.</p>
+          <p className="text-[10px] sm:text-[11px] text-slate-500 px-4">Test your heritage. Draft based on legacy and cult status, not just ratings.</p>
         </div>
       </div>
     </motion.div>
@@ -335,11 +335,15 @@ function FormationSelect({ onSelect, onBack }: { onSelect: (f: Formation) => voi
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="max-w-4xl w-full mt-10 relative"
+      className="max-w-4xl w-full mt-4 sm:mt-10 relative px-4"
     >
-      <BackButton onClick={onBack} />
-      <h2 className="text-3xl font-bold mb-8 text-center">Select Your Formation</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="flex items-center justify-center mb-12 relative">
+        <div className="absolute left-0">
+          <BackButton onClick={onBack} />
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-center">Select Formation</h2>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {FORMATIONS.map(f => (
           <div 
             key={f.name}
@@ -397,55 +401,58 @@ function DraftScreen({
   const chemistry = SimulationEngine.calculateChemistry(gameState.squad.filter(p => p !== null) as Player[]);
 
   return (
-    <div className="w-full max-w-7xl mt-4 space-y-6">
-      <div className="relative overflow-hidden rounded-[28px] border border-slate-800/70 bg-white dark:bg-slate-950/55 backdrop-blur-xl shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+    <div className="w-full max-w-7xl mt-2 sm:mt-4 space-y-4 sm:space-y-6 px-2 sm:px-4">
+      <div className="relative overflow-hidden rounded-[20px] sm:rounded-[28px] border border-slate-800/70 bg-white dark:bg-slate-950/55 backdrop-blur-xl shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-500/15 to-transparent" />
-        <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-slate-800/70 dark:border-slate-800/70">
-          <div className="flex items-center gap-4 min-w-0">
-            <div className="w-11 h-11 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/20 via-orange-500/10 to-transparent text-orange-600 dark:text-orange-300 flex items-center justify-center font-black text-sm shadow-[0_0_28px_rgba(249,115,22,0.18)] shrink-0">
+        <div className="flex items-center justify-between gap-2 px-3 sm:px-6 py-3 sm:py-4 border-b border-slate-800/70 dark:border-slate-800/70">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/20 via-orange-500/10 to-transparent text-orange-600 dark:text-orange-300 flex items-center justify-center font-black text-xs sm:text-sm shadow-[0_0_28px_rgba(249,115,22,0.18)] shrink-0">
               UCL
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h2 className="text-lg sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Squad Draft</h2>
-                <span className="rounded-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 px-3 py-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-                  Draft {draftedCount}/11
-                </span>
-                <span className="rounded-full border border-ucl-neon/30 bg-ucl-neon/10 px-3 py-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.22em] text-ucl-neon">
-                  Chem: {chemistry}
-                </span>
+              <div className="flex items-center gap-1.5 sm:gap-3 flex-wrap">
+                <h2 className="text-base sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white truncate">Squad Draft</h2>
+                <div className="flex gap-1.5">
+                  <span className="rounded-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 px-2 py-0.5 text-[9px] sm:text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    {draftedCount}/11
+                  </span>
+                  <span className="rounded-full border border-ucl-neon/30 bg-ucl-neon/10 px-2 py-0.5 text-[9px] sm:text-xs font-black uppercase tracking-widest text-ucl-neon">
+                    {chemistry}
+                  </span>
+                </div>
               </div>
-              <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-slate-500 mt-1 truncate">
-                {gameState.formation?.name ?? 'Select a formation'} · {gameState.mode.replace('_', ' ')}
+              <p className="text-[8px] sm:text-xs uppercase tracking-[0.2em] text-slate-500 mt-0.5 truncate">
+                {gameState.formation?.name ?? 'Formation'} · {gameState.mode.replace('_', ' ')}
               </p>
             </div>
           </div>
 
 
-          <div className="shrink-0 flex gap-4">
+          <div className="shrink-0">
             <button
               type="button"
               onClick={onBack}
-              className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/70 px-4 py-2.5 text-slate-300 hover:text-ucl-neon hover:border-ucl-neon/40 transition-colors font-black uppercase tracking-widest text-xs shadow-[0_8px_30px_rgba(0,0,0,0.15)]"
+              className="flex items-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-slate-700 bg-slate-900/70 px-3 sm:px-4 py-2 sm:py-2.5 text-slate-300 hover:text-ucl-neon hover:border-ucl-neon/40 transition-colors font-black uppercase tracking-widest text-[9px] sm:text-xs shadow-[0_8px_30px_rgba(0,0,0,0.15)]"
               aria-label="Go back"
             >
-              <LogOut size={16} />
-              Go Back
+              <LogOut className="size-3.5 sm:size-4" />
+              <span className="hidden xs:inline">Go Back</span>
+              <span className="xs:hidden">Back</span>
             </button>
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-slate-800/70">
-          <div className="flex items-center gap-7 sm:gap-12 font-black text-[15px] sm:text-[17px] uppercase tracking-[0.18em]">
+        <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-800/70">
+          <div className="flex items-center gap-4 sm:gap-12 font-black text-xs sm:text-[17px] uppercase tracking-[0.1em] sm:tracking-[0.18em]">
             <button
               type="button"
               onClick={onRerollClub}
               disabled={!spinResult || isSpinning || rerolls.club === 0}
-              className="group flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-all disabled:opacity-35 disabled:cursor-not-allowed"
+              className="group flex items-center gap-1.5 text-amber-400 hover:text-amber-300 transition-all disabled:opacity-35 disabled:cursor-not-allowed"
             >
-              <RefreshCw size={20} strokeWidth={2.35} className="text-amber-400 transition-transform group-hover:rotate-90" />
+              <RefreshCw strokeWidth={2.35} className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 transition-transform group-hover:rotate-90" />
               <span>Team</span>
-              <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2 py-0.5 text-[10px] tracking-normal text-amber-300">
+              <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-1.5 py-0.5 text-[9px] tracking-normal text-amber-300">
                 {rerolls.club}
               </span>
             </button>
@@ -453,11 +460,11 @@ function DraftScreen({
               type="button"
               onClick={onRerollDecade}
               disabled={!spinResult || isSpinning || rerolls.decade === 0}
-              className="group flex items-center gap-2 text-violet-400 hover:text-violet-300 transition-all disabled:opacity-35 disabled:cursor-not-allowed"
+              className="group flex items-center gap-1.5 text-violet-400 hover:text-violet-300 transition-all disabled:opacity-35 disabled:cursor-not-allowed"
             >
-              <RefreshCw size={20} strokeWidth={2.35} className="text-violet-400 transition-transform group-hover:-rotate-90" />
+              <RefreshCw strokeWidth={2.35} className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400 transition-transform group-hover:-rotate-90" />
               <span>Era</span>
-              <span className="rounded-full border border-violet-400/20 bg-violet-400/10 px-2 py-0.5 text-[10px] tracking-normal text-violet-300">
+              <span className="rounded-full border border-violet-400/20 bg-violet-400/10 px-1.5 py-0.5 text-[9px] tracking-normal text-violet-300">
                 {rerolls.decade}
               </span>
             </button>
@@ -880,7 +887,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
                 {isWinner ? (
                 <div className="flex flex-col items-center">
                     <div className="relative mb-6">
-                        <Trophy size={80} className="sm:size-[100px] text-ucl-gold relative z-10" />
+                        <Trophy className="size-20 sm:size-[100px] text-ucl-gold relative z-10" />
                         <div className="absolute inset-0 bg-ucl-gold/30 blur-3xl rounded-full scale-150 animate-pulse"></div>
                     </div>
                     <h2 className="text-4xl sm:text-6xl font-black text-glow-gold mb-4 tracking-tighter italic px-4">CHAMPIONS OF EUROPE</h2>
@@ -903,7 +910,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
                 ) : (
                 <div className="flex flex-col items-center">
                     <div className="p-6 sm:p-8 rounded-full bg-slate-900/40 border border-slate-800 mb-6 sm:mb-8 relative">
-                        <Zap size={40} className="sm:size-[60px] text-slate-600" />
+                        <Zap className="size-10 sm:size-[60px] text-slate-600" />
                     </div>
                     <h2 className="text-4xl sm:text-5xl font-black mb-4 sm:mb-6 uppercase tracking-tighter text-slate-300 italic">Journey Ended</h2>
                     <div className="bg-red-950/10 border border-red-900/30 px-6 sm:px-10 py-3 sm:py-4 rounded-2xl sm:rounded-3xl mb-6 backdrop-blur-sm shadow-xl">
@@ -980,7 +987,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
 
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                         <button onClick={shareScreenshot} className="btn-primary flex-1 flex items-center justify-center gap-3 py-3 sm:py-4 text-sm sm:text-base font-black uppercase tracking-widest">
-                            <Share2 size={18} className="sm:size-5" /> Share
+                            <Share2 className="size-[18px] sm:size-5" /> Share
                         </button>
                         <button onClick={onReset} className="flex-1 px-8 py-3 sm:py-4 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-2xl sm:rounded-3xl font-black uppercase tracking-widest hover:bg-slate-700 hover:border-slate-600 transition-all text-xs sm:text-sm">
                             New Draft
@@ -990,7 +997,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
             </div>
             
             {/* Hidden Share Card Template - keep in DOM for screenshotting */}
-            <div className="absolute top-[-9999px] left-[-9999px]">
+            <div className="fixed top-[-9999px] left-[-9999px] pointer-events-none opacity-0">
                 <div ref={shareCardRef} className="bg-[#020617] text-white p-10 w-[500px] rounded-[40px] font-sans border border-slate-800 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-ucl-neon/5 blur-[100px] rounded-full"></div>
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-ucl-gold/5 blur-[100px] rounded-full"></div>
