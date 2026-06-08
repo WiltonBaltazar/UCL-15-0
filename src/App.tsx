@@ -10,6 +10,29 @@ import { PLAYERS, CLUBS } from './data/players';
 import { SimulationEngine } from './engine';
 import confetti from 'canvas-confetti';
 
+const checkPositionCompatibility = (player: Player, slot: Position) => {
+  if (player.positions.includes(slot)) return true;
+  const flexiblePairs = [
+      ['LM', 'LW'],
+      ['RM', 'RW'],
+      ['CDM', 'CM'],
+      ['LB', 'LWB'],
+      ['RB', 'RWB'],
+      ['CAM', 'CF'],
+      ['ST', 'CF'],
+      ['CAM', 'ST'], // Allow CAM to play ST
+      ['LW', 'RW'], // Allow wingers to swap sides
+      ['ST', 'LW'], // Allow ST to play LW
+      ['ST', 'RW']  // Allow ST to play RW
+  ];
+  for (const pos of player.positions) {
+      for (const pair of flexiblePairs) {
+          if (pair.includes(pos) && pair.includes(slot)) return true;
+      }
+  }
+  return false;
+};
+
 export default function App() {
   const [gameState, setGameState] = useState<GameState>({
     status: 'START',
@@ -107,29 +130,7 @@ export default function App() {
     
     const slotType = gameState.formation?.positions[slotIndex].type;
     
-    const isPlayerCompatible = (player: Player, slot: Position) => {
-      if (player.positions.includes(slot)) return true;
-      const flexiblePairs = [
-          ['LM', 'LW'],
-          ['RM', 'RW'],
-          ['CDM', 'CM'],
-          ['LB', 'LWB'],
-          ['RB', 'RWB'],
-          ['CAM', 'CF'],
-          ['ST', 'CF'],
-          ['LW', 'RW'], // Allow wingers to swap sides
-          ['ST', 'LW'], // Allow ST to play LW
-          ['ST', 'RW']  // Allow ST to play RW
-      ];
-      for (const pos of player.positions) {
-          for (const pair of flexiblePairs) {
-              if (pair.includes(pos) && pair.includes(slot)) return true;
-          }
-      }
-      return false;
-    };
-
-    if (!isPlayerCompatible(selectedPlayerToAssign, slotType!)) return;
+    if (!checkPositionCompatibility(selectedPlayerToAssign, slotType!)) return;
 
     const newSquad = [...gameState.squad];
     newSquad[slotIndex] = selectedPlayerToAssign;
@@ -615,7 +616,7 @@ function DraftScreen({
 
           {gameState.formation?.positions.map((pos, idx) => {
             const player = gameState.squad[idx];
-            const isValidForSelection = selectedPlayer?.positions.includes(pos.type);
+            const isValidForSelection = selectedPlayer ? checkPositionCompatibility(selectedPlayer, pos.type) : false;
             
             return (
               <motion.div 
