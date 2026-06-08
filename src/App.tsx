@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Trophy, Zap, RefreshCw, BarChart3, ChevronRight, Share2, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Analytics } from '@vercel/analytics/react';
 import { BackButton } from './components/BackButton';
 import * as htmlToImage from 'html-to-image';
 import type { GameState, Player, Formation, MatchResult } from './types';
@@ -255,6 +256,7 @@ export default function App() {
           />
         )}
       </AnimatePresence>
+      <Analytics />
     </div>
   );
 }
