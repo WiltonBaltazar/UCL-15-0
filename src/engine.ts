@@ -1,4 +1,6 @@
 import type { Player, MatchResult, LeagueTableEntry } from './types';
+import { PLAYERS, CLUBS } from './data/players';
+import { FORMATIONS } from './data/formations';
 
 export class SimulationEngine {
   static calculateStandings(results: MatchResult[]): LeagueTableEntry[] {
@@ -54,6 +56,54 @@ export class SimulationEngine {
     );
   }
 
+  static simulateMatch(playerSquad: Player[], opponentName: string, opponentRating: number, stage: string, isPlayerHome: boolean): MatchResult {
+    const playerAvgRating = (playerSquad.reduce((acc, p) => acc + (p?.rating || 0), 0) / 11) + (this.calculateChemistry(playerSquad) / 10);
+    
+    // Remove home advantage - normalize probabilities
+    const winProb = this.calculateWinProbability(playerAvgRating, opponentRating);
+    
+    // Vary opponent formation
+    const opponentFormation = FORMATIONS[Math.floor(Math.random() * FORMATIONS.length)].name;
+    
+    // Simulate match
+    const random = Math.random();
+    let homeScore, awayScore, isPlayerWin;
+
+    // Standard match logic (no home bias)
+    const totalGoals = Math.floor(Math.random() * 4);
+    if (random < winProb) {
+        homeScore = Math.floor(Math.random() * (totalGoals + 1));
+        awayScore = totalGoals - homeScore;
+        isPlayerWin = homeScore > awayScore;
+    } else {
+        awayScore = Math.floor(Math.random() * (totalGoals + 1));
+        homeScore = totalGoals - awayScore;
+        isPlayerWin = homeScore > awayScore;
+    }
+
+    // Handle Draws in Knockouts
+    if (homeScore === awayScore && stage !== 'League') {
+        const drawResult = Math.random() > 0.5;
+        if (drawResult) {
+            homeScore += 1;
+            isPlayerWin = true;
+        } else {
+            awayScore += 1;
+            isPlayerWin = false;
+        }
+    }
+
+    return {
+      homeTeam: isPlayerHome ? 'Your Team' : opponentName,
+      awayTeam: isPlayerHome ? opponentName : 'Your Team',
+      homeScore,
+      awayScore,
+      isPlayerWin,
+      stage,
+      opponentFormation
+    };
+  }
+
   static simulateTwoLeggedTie(
     playerSquad: Player[],
     opponentName: string,
@@ -61,38 +111,32 @@ export class SimulationEngine {
     playerHostSecondLeg: boolean,
     stage: string
   ): { results: MatchResult[]; isPlayerWin: boolean } {
-    const leg1 = this.simulateMatch(
-      playerSquad,
-      opponentName,
-      opponentRating,
-      stage
-    );
-    const leg2 = this.simulateMatch(
-      playerSquad,
-      opponentName,
-      opponentRating,
-      stage
-    );
+    // First leg: player away if playerHostSecondLeg is true
+    const leg1 = this.simulateMatch(playerSquad, opponentName, opponentRating, stage, !playerHostSecondLeg);
+    // Second leg: player home
+    const leg2 = this.simulateMatch(playerSquad, opponentName, opponentRating, stage, playerHostSecondLeg);
 
-    // Ensure correct hosting based on ranking
-    const tieResults = playerHostSecondLeg
-      ? [leg1, leg2] // Player hosted second
-      : [leg2, leg1]; // Player hosted first
+    const tieResults = [leg1, leg2];
 
-    const aggregatePlayerScore = tieResults.reduce((acc, match) => acc + (match.isPlayerWin ? match.homeScore : match.awayScore), 0);
-    const aggregateOpponentScore = tieResults.reduce((acc, match) => acc + (match.isPlayerWin ? match.awayScore : match.homeScore), 0);
+    const aggregatePlayerScore = tieResults.reduce((acc, match) => {
+        const playerIsHome = match.homeTeam === 'Your Team';
+        return acc + (playerIsHome ? match.homeScore : match.awayScore);
+    }, 0);
+    
+    const aggregateOpponentScore = tieResults.reduce((acc, match) => {
+        const playerIsHome = match.homeTeam === 'Your Team';
+        return acc + (playerIsHome ? match.awayScore : match.homeScore);
+    }, 0);
 
     let isPlayerWin = aggregatePlayerScore > aggregateOpponentScore;
     let penaltyOutcome: MatchResult['penaltyOutcome'] | undefined;
 
-    // Handle Agg Draws: No away goals, go to ET/Penalties
     if (aggregatePlayerScore === aggregateOpponentScore) {
       const playerWinsPenalties = Math.random() > 0.5;
       isPlayerWin = playerWinsPenalties;
       
-      // Simulate penalty scores
-      const winnerPens = Math.floor(Math.random() * 3) + 3; // 3-5 pens
-      const loserPens = winnerPens - (Math.floor(Math.random() * 2) + 1); // 1-2 difference
+      const winnerPens = Math.floor(Math.random() * 3) + 3;
+      const loserPens = winnerPens - (Math.floor(Math.random() * 2) + 1);
       
       penaltyOutcome = {
         playerWin: playerWinsPenalties,
@@ -101,7 +145,6 @@ export class SimulationEngine {
       };
     }
 
-    // Add penalty outcome to the final match result object if it occurred
     if (penaltyOutcome) {
       tieResults[1].penaltyOutcome = penaltyOutcome;
     }
@@ -125,67 +168,28 @@ export class SimulationEngine {
   }
 
   static calculateWinProbability(playerRating: number, opponentRating: number): number {
-    // Basic ELO-like probability
     const diff = playerRating - opponentRating;
     return 1 / (1 + Math.pow(10, -diff / 20));
   }
 
-  static simulateMatch(playerSquad: Player[], opponentName: string, opponentRating: number, stage: string): MatchResult {
-    const playerAvgRating = playerSquad.reduce((acc, p) => acc + p.rating, 0) / playerSquad.length;
-    
-    // Remove home advantage - normalize probabilities
-    const winProb = this.calculateWinProbability(playerAvgRating, opponentRating);
-    
-    // Simulate match
-    const random = Math.random();
-    let homeScore, awayScore, isPlayerWin;
-
-    // Standard match logic (no home bias)
-    const totalGoals = Math.floor(Math.random() * 4);
-    if (random < winProb) {
-        homeScore = Math.floor(Math.random() * (totalGoals + 1));
-        awayScore = totalGoals - homeScore;
-        isPlayerWin = homeScore > awayScore;
-    } else {
-        awayScore = Math.floor(Math.random() * (totalGoals + 1));
-        homeScore = totalGoals - awayScore;
-        isPlayerWin = homeScore > awayScore;
-    }
-
-    // Handle Draws in Knockouts
-    if (homeScore === awayScore && stage !== 'League') {
-        // Simple mock for Extra Time/Penalties result
-        const drawResult = Math.random() > 0.5;
-        if (drawResult) {
-            homeScore += 1;
-            isPlayerWin = true;
-        } else {
-            awayScore += 1;
-            isPlayerWin = false;
+  static calculateChemistry(squad: Player[]): number {
+    let chemistry = 0;
+    for (let i = 0; i < squad.length; i++) {
+      for (let j = i + 1; j < squad.length; j++) {
+        if (squad[i] && squad[j]) {
+          if (squad[i].club === squad[j].club) chemistry += 2;
+          if (squad[i].decade === squad[j].decade) chemistry += 1;
         }
+      }
     }
-
-    return {
-      homeTeam: 'Your Team',
-      awayTeam: opponentName,
-      homeScore,
-      awayScore,
-      isPlayerWin,
-      stage
-    };
+    return Math.min(chemistry, 50); // Cap bonus
   }
 
-  static getLeagueOpponent(matchIndex: number): { name: string; rating: number } {
-    const opponents = [
-      { name: 'Red Star Belgrade', rating: 78 },
-      { name: 'Shakhtar Donetsk', rating: 80 },
-      { name: 'Benfica', rating: 83 },
-      { name: 'Borussia Dortmund', rating: 86 },
-      { name: 'AC Milan', rating: 87 },
-      { name: 'Arsenal', rating: 88 },
-      { name: 'Liverpool', rating: 90 },
-      { name: 'Real Madrid', rating: 92 },
-    ];
-    return opponents[matchIndex] || { name: 'Generic FC', rating: 85 };
+  static getLeagueOpponent(_matchIndex: number): { name: string; rating: number } {
+    const club = CLUBS[Math.floor(Math.random() * CLUBS.length)];
+    const clubPlayers = PLAYERS.filter(p => p.club === club);
+    const avgRating = clubPlayers.reduce((acc, p) => acc + p.rating, 0) / clubPlayers.length;
+    
+    return { name: club, rating: Math.round(avgRating) };
   }
 }

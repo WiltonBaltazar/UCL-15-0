@@ -29,7 +29,7 @@ export const FORMATIONS: Formation[] = [
       { id: 6, type: 'CM', top: '45%', left: '50%', label: 'CM' },
       { id: 7, type: 'CM', top: '45%', left: '70%', label: 'CM' },
       { id: 8, type: 'LW', top: '20%', left: '20%', label: 'LW' },
-      { id: 9, type: 'CAM', top: '30%', left: '50%', label: 'CF' },
+      { id: 9, type: 'CF', top: '30%', left: '50%', label: 'CF' },
       { id: 10, type: 'RW', top: '20%', left: '80%', label: 'RW' },
     ]
   },

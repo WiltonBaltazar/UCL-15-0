@@ -1,4 +1,4 @@
-export type Position = 'GK' | 'CB' | 'LB' | 'RB' | 'LWB' | 'RWB' | 'CDM' | 'CM' | 'CAM' | 'LM' | 'RM' | 'LW' | 'RW' | 'ST';
+export type Position = 'GK' | 'CB' | 'LB' | 'RB' | 'LWB' | 'RWB' | 'CDM' | 'CM' | 'CAM' | 'LM' | 'RM' | 'LW' | 'RW' | 'ST' | 'CF';
 export type Decade = '1990s' | '2000s' | '2010s' | '2020s';
 export type Club = string;
 
@@ -32,6 +32,7 @@ export interface MatchResult {
   awayScore: number;
   isPlayerWin: boolean;
   stage: string;
+  opponentFormation?: string;
   penaltyOutcome?: { playerWin: boolean; homePenalties: number; awayPenalties: number };
 }
 

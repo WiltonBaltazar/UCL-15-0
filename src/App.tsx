@@ -4,9 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Analytics } from '@vercel/analytics/react';
 import { BackButton } from './components/BackButton';
 import * as htmlToImage from 'html-to-image';
-import type { GameState, Player, Formation, MatchResult } from './types';
+import type { GameState, Player, Formation, MatchResult, Position } from './types';
 import { FORMATIONS } from './data/formations';
-import { PLAYERS } from './data/players';
+import { PLAYERS, CLUBS } from './data/players';
 import { SimulationEngine } from './engine';
 import confetti from 'canvas-confetti';
 
@@ -40,10 +40,18 @@ export default function App() {
 
   const selectFormation = (formation: Formation) => {
     playSound('click');
+    const widenedFormation = {
+      ...formation,
+      positions: formation.positions.map(p => ({
+        ...p,
+        top: `${parseInt(p.top) + (Math.random() * 4 - 2)}%`,
+        left: `${parseInt(p.left) + (Math.random() * 4 - 2)}%`,
+      }))
+    };
     setGameState(prev => ({ 
       ...prev, 
       status: 'DRAFT', 
-      formation,
+      formation: widenedFormation,
       squad: Array(11).fill(null)
     }));
   };
@@ -98,7 +106,27 @@ export default function App() {
     if (gameState.squad[slotIndex] !== null) return;
     
     const slotType = gameState.formation?.positions[slotIndex].type;
-    if (!selectedPlayerToAssign.positions.includes(slotType!)) return;
+    
+    const isPlayerCompatible = (player: Player, slot: Position) => {
+      if (player.positions.includes(slot)) return true;
+      const flexiblePairs = [
+          ['LM', 'LW'],
+          ['RM', 'RW'],
+          ['CDM', 'CM'],
+          ['LB', 'LWB'],
+          ['RB', 'RWB'],
+          ['CAM', 'CF'],
+          ['ST', 'CF']
+      ];
+      for (const pos of player.positions) {
+          for (const pair of flexiblePairs) {
+              if (pair.includes(pos) && pair.includes(slot)) return true;
+          }
+      }
+      return false;
+    };
+
+    if (!isPlayerCompatible(selectedPlayerToAssign, slotType!)) return;
 
     const newSquad = [...gameState.squad];
     newSquad[slotIndex] = selectedPlayerToAssign;
@@ -366,6 +394,7 @@ function DraftScreen({
 }) {
   const isSquadFull = gameState.squad.every(p => p !== null);
   const draftedCount = gameState.squad.filter(player => player !== null).length;
+  const chemistry = SimulationEngine.calculateChemistry(gameState.squad.filter(p => p !== null) as Player[]);
 
   return (
     <div className="w-full max-w-7xl mt-4 space-y-6">
@@ -382,12 +411,16 @@ function DraftScreen({
                 <span className="rounded-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 px-3 py-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
                   Draft {draftedCount}/11
                 </span>
+                <span className="rounded-full border border-ucl-neon/30 bg-ucl-neon/10 px-3 py-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.22em] text-ucl-neon">
+                  Chem: {chemistry}
+                </span>
               </div>
               <p className="text-[10px] sm:text-xs uppercase tracking-[0.3em] text-slate-500 mt-1 truncate">
                 {gameState.formation?.name ?? 'Select a formation'} · {gameState.mode.replace('_', ' ')}
               </p>
             </div>
           </div>
+
 
           <div className="shrink-0 flex gap-4">
             <button
@@ -607,6 +640,7 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
   const [currentMatch, setCurrentMatch] = useState(0);
   const [isSimulating, setIsSimulating] = useState(true);
   const [isEliminated, setIsEliminated] = useState(false);
+  const simStageRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (isEliminated || !isSimulating) return;
@@ -614,9 +648,15 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
     const runSim = async () => {
       if (stage === 'LEAGUE') {
         if (currentMatch < 8) {
+          // If we are already ahead of currentMatch in results, we've already done this
+          if (results.length > currentMatch) {
+              setCurrentMatch(prev => prev + 1);
+              return;
+          }
+
           await new Promise(r => setTimeout(r, 800));
           const opponent = SimulationEngine.getLeagueOpponent(currentMatch);
-          const res = SimulationEngine.simulateMatch(squad, opponent.name, opponent.rating, 'League');
+          const res = SimulationEngine.simulateMatch(squad, opponent.name, opponent.rating, 'League', true);
           setResults(prev => [...prev, res]);
           setCurrentMatch(prev => prev + 1);
         } else {
@@ -633,6 +673,8 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
           }
         }
       } else if (stage === 'PLAYOFFS' || stage === 'R16' || stage === 'QF' || stage === 'SF') {
+        if (simStageRef.current === stage) return;
+        simStageRef.current = stage;
         await new Promise(r => setTimeout(r, 1000));
         const opponent = { 
           name: stage === 'PLAYOFFS' ? 'Benfica' : stage === 'R16' ? 'AC Milan' : stage === 'QF' ? 'Bayern Munich' : 'Man City', 
@@ -662,20 +704,22 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
           setTimeout(() => onComplete(elimDetail, 'Man City'), 2000);
         }
       } else if (stage === 'FINAL') {
+        if (simStageRef.current === stage) return;
+        simStageRef.current = stage;
         await new Promise(r => setTimeout(r, 1500));
-        const finalOpponent = 'Real Madrid';
-        const res = SimulationEngine.simulateMatch(squad, finalOpponent, 96, 'Final');
+        const finalOpponent = CLUBS[Math.floor(Math.random() * CLUBS.length)];
+        const res = SimulationEngine.simulateMatch(squad, finalOpponent, 90, 'Final', true);
         setResults(prev => [...prev, res]);
-        
+
         const isWinner = res.isPlayerWin || (res.homeScore === res.awayScore && Math.random() > 0.5);
-        
+
         setIsSimulating(false);
         setTimeout(() => onComplete(isWinner ? undefined : finalOpponent, isWinner ? 'Your Squad' : finalOpponent), 3000);
       }
     };
 
     runSim();
-  }, [currentMatch, stage, isEliminated]);
+  }, [currentMatch, stage, isEliminated, isSimulating, results]);
 
   return (
     <div className="max-w-2xl w-full mt-10">
@@ -745,8 +789,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
           await navigator.share({
             files: [file],
             title: '15-0 UCL Draft',
-            text: `Draft Your Legendary team! Check out my UCL run at ${window.location.href}`,
-            url: window.location.href,
+            text: `Draft Your Legendary team! Check out my UCL run!`,
           });
         } else {
           // Fallback to download
@@ -762,12 +805,31 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       className="max-w-4xl w-full text-center mt-10 pb-20 p-8 rounded-3xl"
     >
-      {/* Hidden Share Card Template */}
+      <div className="bg-slate-950 p-8 rounded-3xl border border-slate-800 mb-8">
+        <h1 className="text-5xl font-black mb-6 tracking-tighter text-white">
+          {isWinner ? 'CHAMPIONS!' : 'ELIMINATED'}
+        </h1>
+
+        {/* Last match result */}
+        {results.length > 0 && (
+          <div className={`mb-8 p-6 rounded-2xl border ${results[results.length-1].isPlayerWin ? 'bg-green-900/20 border-green-800' : 'bg-red-950/40 border-red-800'}`}>
+            <h3 className="text-slate-400 font-bold uppercase text-xs mb-2">Last Game: {results[results.length-1].stage}</h3>
+            <p className="text-xl font-bold">
+               {results[results.length-1].homeScore} - {results[results.length-1].awayScore} vs {results[results.length-1].awayTeam}
+            </p>
+            {results[results.length-1].opponentFormation && (
+              <p className="text-xs text-slate-500 mt-2">Opponent played: {results[results.length-1].opponentFormation}</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Hidden Share Card Template - keep in DOM for screenshotting */}
       <div className="absolute top-[-9999px] left-[-9999px]">
         <div ref={shareCardRef} className="bg-[#0f172a] text-white p-8 w-[400px] rounded-3xl font-sans">
           <div className="text-center mb-6">
@@ -798,6 +860,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
           </div>
         </div>
       </div>
+
       <div className="mb-8">
         {isWinner ? (
           <div className="flex flex-col items-center">
