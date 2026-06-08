@@ -716,7 +716,6 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
 }
 
 function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, results: MatchResult[], onReset: () => void }) {
-  const resultRef = useRef<HTMLDivElement>(null);
   const shareCardRef = useRef<HTMLDivElement>(null);
   const wins = results.filter(r => r.isPlayerWin).length;
   const isWinner = results.some(r => r.stage === 'Final' && r.isPlayerWin);
@@ -759,13 +758,13 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
       }
     }
   };
+return (
+  <motion.div 
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    className="max-w-4xl w-full text-center mt-10 pb-20 p-8 rounded-3xl"
+  >
 
-  return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="max-w-4xl w-full text-center mt-10 pb-20 p-8 rounded-3xl"
-    >
       {/* Hidden Share Card Template */}
       <div className="absolute top-[-9999px] left-[-9999px]">
         <div ref={shareCardRef} className="bg-[#0f172a] text-white p-8 w-[400px] rounded-3xl font-sans">
