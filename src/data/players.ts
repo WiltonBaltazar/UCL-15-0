@@ -87,6 +87,11 @@ const SQUADS: Record<string, Record<string, { names: string[], positions: string
       positions: [['CAM', 'LW'], ['ST'], ['ST', 'LW'], ['RB', 'CDM', 'RM'], ['CDM', 'CM'], ['CB'], ['CB'], ['RB'], ['GK'], ['CM', 'CAM'], ['CDM', 'CM'], ['CF', 'RW'], ['LB', 'CB'], ['ST', 'LW'], ['CB'], ['CB'], ['CM'], ['LB', 'RB'], ['RW'], ['GK'], ['CM', 'CDM'], ['ST'], ['CDM'], ['GK']],
       ratings: [94, 92, 93, 91, 90, 91, 90, 92, 91, 88, 87, 86, 86, 86, 85, 84, 85, 83, 84, 82, 85, 81, 80, 76]
     },
+    'Liverpool (Klopp)': {
+      names: ['Mohamed Salah', 'Sadio Mané', 'Roberto Firmino', 'Virgil van Dijk', 'Alisson Becker', 'Trent Alexander-Arnold', 'Andrew Robertson', 'Jordan Henderson', 'Fabinho', 'Georginio Wijnaldum', 'Joel Matip', 'James Milner', 'Joe Gomez', 'Divock Origi', 'Xherdan Shaqiri', 'Alex Oxlade-Chamberlain', 'Naby Keïta', 'Dejan Lovren', 'Simon Mignolet', 'Alberto Moreno', 'Daniel Sturridge', 'Adam Lallana', 'Rhian Brewster', 'Nathaniel Clyne'],
+      positions: [['RW', 'ST'], ['LW', 'ST'], ['CF', 'ST'], ['CB'], ['GK'], ['RB'], ['LB'], ['CM', 'CDM'], ['CDM', 'CM'], ['CM'], ['CB'], ['CM', 'RB', 'LB'], ['CB', 'RB'], ['ST', 'LW'], ['RW', 'CAM'], ['CM', 'CAM'], ['CM'], ['CB'], ['GK'], ['LB'], ['ST'], ['CAM', 'CM'], ['ST'], ['RB']],
+      ratings: [94, 93, 91, 95, 92, 90, 89, 89, 89, 88, 87, 86, 85, 84, 84, 84, 83, 83, 82, 80, 82, 81, 75, 80]
+    },
     'Atletico Madrid': {
       names: ['Diego Godín', 'Antoine Griezmann', 'Koke', 'Gabi', 'Juanfran', 'Filipe Luís', 'Jan Oblak', 'Thibaut Courtois', 'Diego Costa', 'Arda Turan', 'Miranda', 'José María Giménez', 'Saúl Ñíguez', 'Yannick Carrasco', 'Fernando Torres', 'Tiago', 'Raúl García', 'Mario Mandžukić', 'Oliver Torres', 'Stefan Savić', 'Lucas Hernandez', 'Thomas Partey', 'Miguel Ángel Moyá', 'Ángel Correa'],
       positions: [['CB'], ['ST', 'CAM'], ['CM', 'LM'], ['CDM'], ['RB'], ['LB'], ['GK'], ['GK'], ['ST'], ['LM', 'RM'], ['CB'], ['CB'], ['CM', 'RM'], ['LM', 'LW'], ['ST'], ['CDM'], ['CM', 'ST'], ['ST'], ['CAM'], ['CB'], ['CB', 'LB'], ['CDM'], ['GK'], ['ST', 'RW']],
@@ -99,6 +104,16 @@ const SQUADS: Record<string, Record<string, { names: string[], positions: string
     }
   },
   '2020s': {
+    'PSG (2020 Runner-up)': {
+        names: ['Neymar Jr', 'Kylian Mbappé', 'Angel Di Maria', 'Marquinhos', 'Thiago Silva', 'Keylor Navas', 'Marco Verratti', 'Presnel Kimpembe', 'Mauro Icardi', 'Idrissa Gueye', 'Juan Bernat', 'Thilo Kehrer', 'Leandro Paredes', 'Pablo Sarabia', 'Julian Draxler', 'Layvin Kurzawa', 'Colin Dagba', 'Eric Maxim Choupo-Moting', 'Sergio Rico', 'Tanguy Nianzou', 'Mitchel Bakker', 'Garissone Innocent', 'Marcin Bulka', 'Ander Herrera'],
+        positions: [['LW', 'CAM', 'ST'], ['ST', 'LW'], ['RW', 'CAM'], ['CB', 'CDM'], ['CB'], ['GK'], ['CM'], ['CB'], ['ST'], ['CDM', 'CM'], ['LB'], ['RB', 'CB'], ['CDM', 'CM'], ['RW', 'CAM'], ['CAM', 'LM'], ['LB'], ['RB'], ['ST'], ['GK'], ['CB'], ['LB'], ['GK'], ['GK'], ['CM', 'CDM']],
+        ratings: [92, 92, 87, 86, 86, 87, 88, 84, 85, 83, 82, 80, 81, 82, 81, 79, 78, 78, 80, 75, 74, 72, 72, 81]
+    },
+    'PSG (Back-to-Back)': {
+        names: ['Kylian Mbappé', 'Neymar Jr', 'Lionel Messi', 'Marquinhos', 'Gianluigi Donnarumma', 'Achraf Hakimi', 'Marco Verratti', 'Nuno Mendes', 'Danilo Pereira', 'Vitinha', 'Presnel Kimpembe', 'Sergio Ramos', 'Fabian Ruiz', 'Carlos Soler', 'Renato Sanches', 'Hugo Ekitike', 'Juan Bernat', 'Nordi Mukiele', 'Warren Zaïre-Emery', 'El Chadaille Bitshiabu', 'Sergio Rico', 'Alexandre Letellier', 'Timothée Pembélé', 'Ismaël Gharbi'],
+        positions: [['ST', 'LW'], ['LW', 'CAM'], ['RW', 'CAM'], ['CB', 'CDM'], ['GK'], ['RB', 'RWB'], ['CM'], ['LB', 'LWB'], ['CDM', 'CB'], ['CM'], ['CB'], ['CB'], ['CM'], ['CAM', 'CM'], ['CM'], ['ST'], ['LB'], ['RB', 'CB'], ['CM', 'CDM'], ['CB'], ['GK'], ['GK'], ['RB'], ['CAM']],
+        ratings: [93, 91, 91, 87, 88, 87, 86, 85, 84, 84, 83, 82, 82, 81, 80, 79, 79, 79, 79, 73, 78, 74, 73, 70]
+    },
     'Man City': {
       names: ['Erling Haaland', 'Kevin De Bruyne', 'Rodri', 'Ruben Dias', 'Ederson', 'Bernardo Silva', 'Phil Foden', 'John Stones', 'Kyle Walker', 'Ilkay Gündoğan', 'Jack Grealish', 'Riyad Mahrez', 'Manuel Akanji', 'Nathan Aké', 'Aymeric Laporte', 'João Cancelo', 'Julian Alvarez', 'Oleksandr Zinchenko', 'Ferran Torres', 'Gabriel Jesus', 'Stefan Ortega', 'Rico Lewis', 'Oscar Bobb', 'Matheus Nunes'],
       positions: [['ST'], ['CAM', 'CM'], ['CDM'], ['CB'], ['GK'], ['CAM', 'RW'], ['CAM', 'LW', 'RW'], ['CB', 'CDM'], ['RB'], ['CM'], ['LW'], ['RW'], ['CB'], ['CB', 'LB'], ['CB'], ['LB', 'RB'], ['ST'], ['LB'], ['RW', 'ST'], ['ST'], ['GK'], ['RB'], ['RW'], ['CM']],
