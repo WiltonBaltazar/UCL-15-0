@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Trophy, Zap, RefreshCw, BarChart3, ChevronRight, Share2, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BackButton } from './components/BackButton';
+import { ThemeToggle } from './components/ThemeToggle';
 import * as htmlToImage from 'html-to-image';
 import type { GameState, Player, Formation, MatchResult } from './types';
 import { FORMATIONS } from './data/formations';
 import { PLAYERS } from './data/players';
 import { SimulationEngine } from './engine';
+import confetti from 'canvas-confetti';
 
 export default function App() {
   const [gameState, setGameState] = useState<GameState>({
@@ -210,7 +212,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center p-4">
+    <div className="min-h-screen flex flex-col items-center p-4 bg-white dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
       <AnimatePresence mode="wait">
         {gameState.status === 'START' && (
           <StartScreen onStart={startDraft} />
@@ -272,22 +274,28 @@ function StartScreen({ onStart }: { onStart: (mode: 'CLASSIC' | 'BALL_KNOWLEDGE'
           <div className="absolute inset-0 bg-ucl-gold/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
         </div>
       </div>
-      <h1 className="text-8xl font-black mb-6 tracking-tighter italic text-glow">15-0</h1>
-      <p className="text-2xl text-slate-400 mb-12 max-w-lg leading-relaxed font-medium">Build an undefeated historical XI and conquer the modern UCL format.</p>
+      <h1 className="text-7xl font-black mb-6 tracking-tighter italic text-glow">UCL DRAFT</h1>
+      <p className="text-2xl text-slate-400 mb-12 max-w-lg leading-relaxed font-medium">Draft your legendary team and conquer the UCL.</p>
       
-      <div className="flex flex-col sm:flex-row gap-6 w-full max-w-md">
-        <button 
-          onClick={() => onStart('CLASSIC')}
-          className="btn-primary flex-1 flex items-center justify-center gap-3"
-        >
-          <Zap size={20} /> Classic
-        </button>
-        <button 
-          onClick={() => onStart('BALL_KNOWLEDGE')}
-          className="flex-1 px-8 py-4 bg-slate-900/50 border-2 border-slate-700 rounded-full font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-3"
-        >
-          <BarChart3 size={20} /> Ball Knowledge
-        </button>
+      <div className="flex flex-col sm:flex-row gap-6 w-full max-w-2xl">
+        <div className="flex-1 flex flex-col gap-3">
+          <button 
+            onClick={() => onStart('CLASSIC')}
+            className="btn-primary w-full flex items-center justify-center gap-3"
+          >
+            <Zap size={20} /> Classic
+          </button>
+          <p className="text-[11px] text-slate-500 px-4">Build your dream team using historical ratings to dominate the UCL.</p>
+        </div>
+        <div className="flex-1 flex flex-col gap-3">
+          <button 
+            onClick={() => onStart('BALL_KNOWLEDGE')}
+            className="w-full px-8 py-4 bg-slate-900/50 border-2 border-slate-700 rounded-full font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-3"
+          >
+            <BarChart3 size={20} /> Ball Knowledge
+          </button>
+          <p className="text-[11px] text-slate-500 px-4">Test your heritage. Draft based on legacy and cult status, not just ratings.</p>
+        </div>
       </div>
     </motion.div>
   );
@@ -360,17 +368,17 @@ function DraftScreen({
 
   return (
     <div className="w-full max-w-7xl mt-4 space-y-6">
-      <div className="relative overflow-hidden rounded-[28px] border border-slate-800/70 bg-slate-950/55 backdrop-blur-xl shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-        <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-slate-800/70">
+      <div className="relative overflow-hidden rounded-[28px] border border-slate-800/70 bg-white dark:bg-slate-950/55 backdrop-blur-xl shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-500/15 to-transparent" />
+        <div className="flex items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-slate-800/70 dark:border-slate-800/70">
           <div className="flex items-center gap-4 min-w-0">
-            <div className="w-11 h-11 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/20 via-orange-500/10 to-transparent text-orange-300 flex items-center justify-center font-black text-sm shadow-[0_0_28px_rgba(249,115,22,0.18)] shrink-0">
-              15-0
+            <div className="w-11 h-11 rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/20 via-orange-500/10 to-transparent text-orange-600 dark:text-orange-300 flex items-center justify-center font-black text-sm shadow-[0_0_28px_rgba(249,115,22,0.18)] shrink-0">
+              UCL
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
-                <h2 className="text-lg sm:text-2xl font-black tracking-tight text-white">Squad Draft</h2>
-                <span className="rounded-full border border-slate-700 bg-slate-900/60 px-3 py-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.22em] text-slate-400">
+                <h2 className="text-lg sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Squad Draft</h2>
+                <span className="rounded-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900/60 px-3 py-1 text-[11px] sm:text-xs font-black uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
                   Draft {draftedCount}/11
                 </span>
               </div>
@@ -380,7 +388,7 @@ function DraftScreen({
             </div>
           </div>
 
-          <div className="shrink-0">
+          <div className="shrink-0 flex gap-4">
             <button
               type="button"
               onClick={onBack}
@@ -712,8 +720,17 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
   const resultRef = useRef<HTMLDivElement>(null);
   const wins = results.filter(r => r.isPlayerWin).length;
   const isWinner = results.some(r => r.stage === 'Final' && r.isPlayerWin);
+  const isUndefeated = results.every(r => r.isPlayerWin);
   const squadRating = Math.round(gameState.squad.reduce((acc, p) => acc + (p?.rating || 0), 0) / 11);
   const finalMatch = results.find(r => r.stage === 'Final');
+
+  useEffect(() => {
+    if (isWinner) {
+        confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
+        const audio = new Audio('/sounds/lock.mp3');
+        audio.play().catch(() => {});
+    }
+  }, [isWinner]);
 
   const downloadScreenshot = async () => {
     if (resultRef.current) {
@@ -741,6 +758,14 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
           <div className="flex flex-col items-center">
             <Trophy size={80} className="text-ucl-gold mb-4" />
             <h2 className="text-5xl font-black text-ucl-neon mb-2">CHAMPIONS!</h2>
+            {isUndefeated && (
+              <motion.div 
+                initial={{ scale: 0 }} animate={{ scale: 1 }}
+                className="bg-ucl-gold text-ucl-dark font-black text-xs px-4 py-1 rounded-full uppercase tracking-widest mb-4"
+              >
+                Undefeated Run!
+              </motion.div>
+            )}
             {finalMatch && (
               <div className="bg-slate-900 px-6 py-2 rounded-xl border border-ucl-neon/30 text-ucl-neon font-black text-xl mt-2">
                 Final: {finalMatch.homeScore} - {finalMatch.awayScore}
