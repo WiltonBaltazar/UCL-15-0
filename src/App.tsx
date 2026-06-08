@@ -762,6 +762,7 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
 }
 
 function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, results: MatchResult[], onReset: () => void }) {
+  const [showHistory, setShowHistory] = useState(false);
   const shareCardRef = useRef<HTMLDivElement>(null);
   const wins = results.filter(r => r.isPlayerWin).length;
   const isWinner = results.some(r => r.stage === 'Final' && r.isPlayerWin);
@@ -810,115 +811,146 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
       animate={{ opacity: 1, scale: 1 }}
       className="max-w-4xl w-full text-center mt-10 pb-20 p-8 rounded-3xl"
     >
-      <div className="bg-slate-950 p-8 rounded-3xl border border-slate-800 mb-8">
-        <h1 className="text-5xl font-black mb-6 tracking-tighter text-white">
-          {isWinner ? 'CHAMPIONS!' : 'ELIMINATED'}
-        </h1>
-
-        {/* Last match result */}
-        {results.length > 0 && (
-          <div className={`mb-8 p-6 rounded-2xl border ${results[results.length-1].isPlayerWin ? 'bg-green-900/20 border-green-800' : 'bg-red-950/40 border-red-800'}`}>
-            <h3 className="text-slate-400 font-bold uppercase text-xs mb-2">Last Game: {results[results.length-1].stage}</h3>
-            <p className="text-xl font-bold">
-               {results[results.length-1].homeScore} - {results[results.length-1].awayScore} vs {results[results.length-1].awayTeam}
-            </p>
-            {results[results.length-1].opponentFormation && (
-              <p className="text-xs text-slate-500 mt-2">Opponent played: {results[results.length-1].opponentFormation}</p>
-            )}
-          </div>
-        )}
+      <div className="flex gap-4 justify-center mb-8">
+        <button 
+           onClick={() => setShowHistory(!showHistory)}
+           className="px-6 py-2 bg-slate-800 rounded-full font-bold text-sm hover:bg-slate-700 transition-colors"
+        >
+          {showHistory ? 'Hide Match History' : 'View All Matches'}
+        </button>
       </div>
 
-      {/* Hidden Share Card Template - keep in DOM for screenshotting */}
-      <div className="absolute top-[-9999px] left-[-9999px]">
-        <div ref={shareCardRef} className="bg-[#0f172a] text-white p-8 w-[400px] rounded-3xl font-sans">
-          <div className="text-center mb-6">
-             <div className="text-[10px] text-slate-400 uppercase tracking-widest">{isWinner ? 'CHAMPION' : 'ELIMINATED'}</div>
-             <div className="text-4xl font-black text-white my-1">{isWinner && isUndefeated ? 'PERFECT RUN' : 'UCL CAMPAIGN'}</div>
-             <div className="text-sm font-bold text-slate-300">
-                {finalMatch ? `Final: ${finalMatch.homeScore}-${finalMatch.awayScore} vs ${isWinner ? finalMatch.awayTeam : gameState.eliminatedBy?.split(' (')[0]}` : 'Tournament Summary'}
-             </div>
-             <div className="text-xs text-slate-400 mt-1">Record: {wins}-{results.length - wins}</div>
-          </div>
-          
-          <div className="space-y-2 mb-6">
-            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Your XI ({gameState.formation?.name})</h4>
-            {gameState.squad.map((p, i) => (
-              <div key={i} className="bg-slate-800 p-2 rounded-xl flex items-center gap-3">
-                <div className="bg-ucl-neon text-ucl-dark px-1.5 py-0.5 rounded-md text-[9px] font-black w-7 text-center">{p?.positions[0]}</div>
-                <div className="min-w-0">
-                  <div className="text-xs font-bold text-white truncate text-left">{p?.name}</div>
-                  <div className="text-[9px] text-slate-400 truncate text-left">{p?.decade}</div>
+      {showHistory ? (
+        <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+          {results.map((m, i) => (
+            <div key={i} className={`p-3 rounded-lg border flex flex-col gap-1 text-sm ${m.isPlayerWin ? 'bg-green-900/20 border-green-800' : (m.homeScore === m.awayScore && !m.penaltyOutcome) ? 'bg-slate-800/50 border-slate-700' : 'bg-red-950/40 border-red-800'}`}>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] text-slate-500 uppercase font-bold w-16">{m.stage}</span>
+                <span className="flex-1 text-right pr-4 font-bold">{m.homeTeam}</span>
+                <span className="bg-slate-900 px-3 py-1 rounded font-black text-ucl-neon border border-slate-700">{m.homeScore} - {m.awayScore}</span>
+                <span className="flex-1 text-left pl-4 font-bold">{m.awayTeam}</span>
+              </div>
+              {m.opponentFormation && <p className="text-[10px] text-slate-400 mt-1">Opponent: {m.opponentFormation}</p>}
+              {m.penaltyOutcome && (
+                <div className="text-center text-[10px] uppercase font-bold text-slate-300 mt-1 border-t border-slate-700 pt-1">
+                  {m.penaltyOutcome.playerWin ? 'Won' : 'Lost'} on Penalties ({m.penaltyOutcome.homePenalties} - {m.penaltyOutcome.awayPenalties})
                 </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-4 text-center border-t border-slate-700 pt-4">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Draft Your Legendary Team</div>
-            <div className="text-ucl-neon font-black text-lg mt-1">ucl-draft.com</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mb-8">
-        {isWinner ? (
-          <div className="flex flex-col items-center">
-            <Trophy size={80} className="text-ucl-gold mb-4" />
-            <h2 className="text-5xl font-black text-ucl-neon mb-2">CHAMPIONS!</h2>
-            {isUndefeated && (
-              <motion.div 
-                initial={{ scale: 0 }} animate={{ scale: 1 }}
-                className="bg-ucl-gold text-ucl-dark font-black text-xs px-4 py-1 rounded-full uppercase tracking-widest mb-4"
-              >
-                Undefeated Run!
-              </motion.div>
-            )}
-            {finalMatch && (
-              <div className="bg-slate-900 px-6 py-2 rounded-xl border border-ucl-neon/30 text-ucl-neon font-black text-xl mt-2">
-                Final: {finalMatch.homeScore} - {finalMatch.awayScore}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center">
-            <Zap size={60} className="text-slate-500 mb-4" />
-            <h2 className="text-4xl font-black mb-2 uppercase">Knocked Out</h2>
-            <div className="bg-red-950/20 border border-red-900/50 px-6 py-3 rounded-2xl mb-4">
-              <p className="text-red-400 font-bold text-sm">Eliminated by: <span className="text-white uppercase tracking-widest">{gameState.eliminatedBy}</span></p>
+              )}
             </div>
-            <p className="text-slate-400 text-sm">Tournament Winner: <span className="text-ucl-gold font-bold">{gameState.tournamentWinner}</span></p>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
-        <button onClick={shareScreenshot} className="btn-primary w-full sm:max-w-[200px] flex items-center justify-center gap-3 py-3">
-          <Share2 size={18} /> Share
-        </button>
-        <button onClick={onReset} className="w-full sm:max-w-[200px] px-8 py-3 bg-slate-800 rounded-full font-bold hover:bg-slate-700 transition-colors">
-          Play Again
-        </button>
-      </div>
-
-      {/* Tournament Summary moved above */}
-      <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 max-w-2xl mx-auto">
-        <h3 className="text-slate-300 font-bold mb-4 uppercase text-sm">Tournament Summary</h3>
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div>
-            <div className="text-2xl font-black text-white">{results.length}</div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-widest">Matches</div>
-          </div>
-          <div>
-            <div className="text-2xl font-black text-green-500">{wins}</div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-widest">Wins</div>
-          </div>
-          <div>
-            <div className="text-2xl font-black text-red-500">{results.length - wins}</div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-widest">Losses/Draws</div>
-          </div>
+          ))}
         </div>
-      </div>
+      ) : (
+        <>
+            <div ref={shareCardRef} className="bg-slate-950 p-8 rounded-3xl border border-slate-800 mb-8">
+              <h1 className="text-5xl font-black mb-6 tracking-tighter text-white">
+                {isWinner ? 'CHAMPIONS!' : 'ELIMINATED'}
+              </h1>
+
+              {/* Last match result */}
+              {results.length > 0 && (
+                <div className={`mb-8 p-6 rounded-2xl border ${results[results.length-1].isPlayerWin ? 'bg-green-900/20 border-green-800' : 'bg-red-950/40 border-red-800'}`}>
+                  <h3 className="text-slate-400 font-bold uppercase text-xs mb-2">Last Game: {results[results.length-1].stage}</h3>
+                  <p className="text-xl font-bold">
+                     {results[results.length-1].homeScore} - {results[results.length-1].awayScore} vs {results[results.length-1].awayTeam}
+                  </p>
+                  {results[results.length-1].opponentFormation && (
+                    <p className="text-xs text-slate-500 mt-2">Opponent played: {results[results.length-1].opponentFormation}</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="mb-8">
+                {isWinner ? (
+                <div className="flex flex-col items-center">
+                    <Trophy size={80} className="text-ucl-gold mb-4" />
+                    <h2 className="text-5xl font-black text-ucl-neon mb-2">CHAMPIONS!</h2>
+                    {isUndefeated && (
+                    <motion.div 
+                        initial={{ scale: 0 }} animate={{ scale: 1 }}
+                        className="bg-ucl-gold text-ucl-dark font-black text-xs px-4 py-1 rounded-full uppercase tracking-widest mb-4"
+                    >
+                        Undefeated Run!
+                    </motion.div>
+                    )}
+                    {finalMatch && (
+                    <div className="bg-slate-900 px-6 py-2 rounded-xl border border-ucl-neon/30 text-ucl-neon font-black text-xl mt-2">
+                        Final: {finalMatch.homeScore} - {finalMatch.awayScore}
+                    </div>
+                    )}
+                </div>
+                ) : (
+                <div className="flex flex-col items-center">
+                    <Zap size={60} className="text-slate-500 mb-4" />
+                    <h2 className="text-4xl font-black mb-2 uppercase">Knocked Out</h2>
+                    <div className="bg-red-950/20 border border-red-900/50 px-6 py-3 rounded-2xl mb-4">
+                    <p className="text-red-400 font-bold text-sm">Eliminated by: <span className="text-white uppercase tracking-widest">{gameState.eliminatedBy}</span></p>
+                    </div>
+                    <p className="text-slate-400 text-sm">Tournament Winner: <span className="text-ucl-gold font-bold">{gameState.tournamentWinner}</span></p>
+                </div>
+                )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
+                <button onClick={shareScreenshot} className="btn-primary w-full sm:max-w-[200px] flex items-center justify-center gap-3 py-3">
+                <Share2 size={18} /> Share
+                </button>
+                <button onClick={onReset} className="w-full sm:max-w-[200px] px-8 py-3 bg-slate-800 rounded-full font-bold hover:bg-slate-700 transition-colors">
+                Play Again
+                </button>
+            </div>
+            
+            <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 mb-8 max-w-2xl mx-auto">
+                <h3 className="text-slate-300 font-bold mb-4 uppercase text-sm">Tournament Summary</h3>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                    <div className="text-2xl font-black text-white">{results.length}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-widest">Matches</div>
+                </div>
+                <div>
+                    <div className="text-2xl font-black text-green-500">{wins}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-widest">Wins</div>
+                </div>
+                <div>
+                    <div className="text-2xl font-black text-red-500">{results.length - wins}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-widest">Losses/Draws</div>
+                </div>
+                </div>
+            </div>
+            
+            {/* Hidden Share Card Template - keep in DOM for screenshotting */}
+            <div className="absolute top-[-9999px] left-[-9999px]">
+                <div ref={shareCardRef} className="bg-[#0f172a] text-white p-8 w-[400px] rounded-3xl font-sans">
+                <div className="text-center mb-6">
+                    <div className="text-[10px] text-slate-400 uppercase tracking-widest">{isWinner ? 'CHAMPION' : 'ELIMINATED'}</div>
+                    <div className="text-4xl font-black text-white my-1">{isWinner && isUndefeated ? 'PERFECT RUN' : 'UCL CAMPAIGN'}</div>
+                    <div className="text-sm font-bold text-slate-300">
+                        {finalMatch ? `Final: ${finalMatch.homeScore}-${finalMatch.awayScore} vs ${isWinner ? finalMatch.awayTeam : gameState.eliminatedBy?.split(' (')[0]}` : 'Tournament Summary'}
+                    </div>
+                    <div className="text-xs text-slate-400 mt-1">Record: {wins}-{results.length - wins}</div>
+                </div>
+                
+                <div className="space-y-2 mb-6">
+                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">Your XI ({gameState.formation?.name})</h4>
+                    {gameState.squad.map((p, i) => (
+                    <div key={i} className="bg-slate-800 p-2 rounded-xl flex items-center gap-3">
+                        <div className="bg-ucl-neon text-ucl-dark px-1.5 py-0.5 rounded-md text-[9px] font-black w-7 text-center">{p?.positions[0]}</div>
+                        <div className="min-w-0">
+                        <div className="text-xs font-bold text-white truncate text-left">{p?.name}</div>
+                        <div className="text-[9px] text-slate-400 truncate text-left">{p?.decade}</div>
+                        </div>
+                    </div>
+                    ))}
+                </div>
+                
+                <div className="mt-4 text-center border-t border-slate-700 pt-4">
+                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Draft Your Legendary Team</div>
+                    <div className="text-ucl-neon font-black text-lg mt-1">ucl-draft.com</div>
+                </div>
+                </div>
+            </div>
+        </>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Pitch Visualization */}
