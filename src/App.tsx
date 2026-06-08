@@ -717,6 +717,7 @@ function SimulationScreen({ squad, onComplete, results, setResults }: { squad: P
 
 function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, results: MatchResult[], onReset: () => void }) {
   const resultRef = useRef<HTMLDivElement>(null);
+  const shareCardRef = useRef<HTMLDivElement>(null);
   const wins = results.filter(r => r.isPlayerWin).length;
   const isWinner = results.some(r => r.stage === 'Final' && r.isPlayerWin);
   const isUndefeated = results.every(r => r.isPlayerWin);
@@ -731,27 +732,67 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
     }
   }, [isWinner]);
 
-  const downloadScreenshot = async () => {
-    if (resultRef.current) {
+  const shareScreenshot = async () => {
+    if (shareCardRef.current) {
       try {
-        const dataUrl = await htmlToImage.toPng(resultRef.current);
-        const link = document.createElement('a');
-        link.download = '15-0-result.png';
-        link.href = dataUrl;
-        link.click();
+        const dataUrl = await htmlToImage.toPng(shareCardRef.current);
+        const response = await fetch(dataUrl);
+        const blob = await response.blob();
+        const file = new File([blob], 'ucl-draft-result.png', { type: 'image/png' });
+
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: '15-0 UCL Draft',
+            text: 'Draft Your Legendary team!',
+            url: window.location.href,
+          });
+        } else {
+          // Fallback to download
+          const link = document.createElement('a');
+          link.download = 'ucl-draft-result.png';
+          link.href = dataUrl;
+          link.click();
+        }
       } catch (error) {
-        console.error('Error generating screenshot:', error);
+        console.error('Error sharing screenshot:', error);
       }
     }
   };
 
   return (
     <motion.div 
-      ref={resultRef}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="max-w-4xl w-full text-center mt-10 pb-20 bg-ucl-dark p-8 rounded-3xl"
+      className="max-w-4xl w-full text-center mt-10 pb-20 p-8 rounded-3xl"
     >
+      {/* Hidden Share Card Template */}
+      <div className="absolute top-[-9999px] left-[-9999px]">
+        <div ref={shareCardRef} className="bg-[#0f172a] text-white p-8 w-[400px] rounded-3xl font-sans">
+          <div className="text-center mb-6">
+             <div className="text-[10px] text-slate-400 uppercase tracking-widest">Projected Record</div>
+             <div className="text-5xl font-black text-white my-1">{wins}-{results.length - wins} <span className="text-green-500 text-3xl">A+</span></div>
+             <div className="text-[10px] text-slate-400 uppercase tracking-widest">Team OVR {squadRating}</div>
+          </div>
+          
+          <div className="space-y-2">
+            {gameState.squad.map((p, i) => (
+              <div key={i} className="bg-slate-800 p-3 rounded-xl flex items-center gap-3">
+                <div className="bg-ucl-neon text-ucl-dark px-2 py-1 rounded-md text-[10px] font-black w-8 text-center">{p?.positions[0]}</div>
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-white truncate">{p?.name}</div>
+                  <div className="text-[10px] text-slate-400 truncate">{p?.club} · {p?.decade}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-8 text-center border-t border-slate-700 pt-4">
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Can you conquer the UCL?</div>
+            <div className="text-ucl-neon font-black text-xl mt-1">ucl-draft.com</div>
+          </div>
+        </div>
+      </div>
       <div className="mb-8">
         {isWinner ? (
           <div className="flex flex-col items-center">
@@ -784,7 +825,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 mb-8 justify-center">
-        <button onClick={downloadScreenshot} className="btn-primary w-full sm:max-w-[200px] flex items-center justify-center gap-3 py-3">
+        <button onClick={shareScreenshot} className="btn-primary w-full sm:max-w-[200px] flex items-center justify-center gap-3 py-3">
           <Share2 size={18} /> Share
         </button>
         <button onClick={onReset} className="w-full sm:max-w-[200px] px-8 py-3 bg-slate-800 rounded-full font-bold hover:bg-slate-700 transition-colors">
