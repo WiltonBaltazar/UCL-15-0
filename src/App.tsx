@@ -981,7 +981,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
                             Legendary Squad
                         </h3>
                         <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar flex-1">
-                            {gameState.squad.map((player, idx) => player && (
+                            {gameState.squad.map((player) => player && (
                                 <div key={player.id} className="flex items-center justify-between p-3 bg-slate-900/40 rounded-xl border border-slate-800/40 hover:border-ucl-neon/20 transition-colors">
                                     <div className="flex flex-col min-w-0">
                                         <span className="text-xs font-black text-white uppercase tracking-tight truncate">{player.name}</span>
