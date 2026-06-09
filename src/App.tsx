@@ -846,8 +846,8 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
         if (navigator.share && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: '15-0 UCL Draft',
-            text: `Draft Your Legendary team! Check out my UCL run!`,
+            title: 'UCL Draft',
+            text: `Draft your legendary team and conquer the UCL! Can you win the UCL?\n\nCheck it out: ${window.location.origin}`,
           });
         } else {
           // Fallback to download
@@ -1035,7 +1035,7 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
                         <Share2 className="size-5" /> Share Run
                     </button>
                     <button onClick={onReset} className="flex-1 px-8 py-4 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-3xl font-black uppercase tracking-widest hover:bg-slate-700 hover:border-slate-600 transition-all text-sm">
-                        Start New Draft
+                        Play Again
                     </button>
                 </div>
             </div>
