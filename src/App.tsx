@@ -943,77 +943,100 @@ function ResultsScreen({ gameState, results, onReset }: { gameState: GameState, 
                 )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 mb-12 sm:mb-16 items-stretch">
-                {/* Tactical Setup Visualization */}
-                <div className="neon-card text-left p-6 sm:p-8 flex flex-col h-full bg-slate-950/30 border-slate-800/50">
-                    <h3 className="text-ucl-neon font-black mb-6 sm:mb-8 uppercase text-[10px] sm:text-xs tracking-[0.25em] flex items-center gap-3">
+            <div className="space-y-6 sm:space-y-10">
+                {/* Tournament Summary Card - Full Width at Top */}
+                <div className="neon-card text-left p-6 sm:p-8 bg-slate-950/30 border-slate-800/50">
+                    <h3 className="text-ucl-neon font-black mb-6 sm:mb-10 uppercase text-[10px] sm:text-xs tracking-[0.25em] flex items-center gap-3">
                         <div className="w-1.5 h-1.5 rounded-full bg-ucl-neon animate-pulse"></div>
-                        Tactical Setup: {gameState.formation?.name}
+                        Tournament Summary
                     </h3>
-                    <div className="relative aspect-[3/4] bg-slate-900/40 rounded-3xl overflow-hidden border border-slate-800/60 shadow-inner flex-1 pitch-container max-w-[300px] mx-auto w-full">
-                        <div className="absolute inset-0 opacity-10 pointer-events-none">
-                            <div className="absolute top-1/2 left-0 w-full h-px bg-white"></div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white rounded-full"></div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                        <div className="flex justify-between items-center p-4 sm:p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
+                            <span className="text-slate-400 font-black uppercase text-[9px] sm:text-[10px] tracking-widest">Record</span>
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                <span className="text-lg sm:text-xl font-black text-green-500">{wins}W</span>
+                                <span className="text-lg sm:text-xl font-black text-slate-500">{draws}D</span>
+                                <span className="text-lg sm:text-xl font-black text-red-500">{losses}L</span>
+                            </div>
                         </div>
-                        {gameState.formation?.positions.map((pos, idx) => {
-                            const player = gameState.squad[idx];
-                            return (
-                                <div 
-                                    key={pos.id}
-                                    className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
-                                    style={{ top: pos.top, left: pos.left }}
-                                >
-                                    <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border shadow-lg transition-all ${player ? 'bg-ucl-neon border-white text-ucl-dark' : 'bg-slate-800 border-slate-700 text-slate-500'}`}>
-                                        {player ? (
-                                            <span className="font-black text-[7px] sm:text-[9px] truncate w-7 sm:w-9 text-center uppercase tracking-tighter">{player.name.split(' ').pop()}</span>
-                                        ) : (
-                                            <span className="text-[6px] sm:text-[7px] font-black">{pos.label}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })}
+                        <div className="flex justify-between items-center p-4 sm:p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
+                            <span className="text-slate-400 font-black uppercase text-[9px] sm:text-[10px] tracking-widest">Squad Strength</span>
+                            <div className="flex flex-col items-end">
+                                <span className="text-2xl sm:text-3xl font-black text-ucl-gold">{squadRating}</span>
+                                <span className="text-[7px] sm:text-[8px] text-slate-600 uppercase font-black tracking-tighter">Avg Rating</span>
+                            </div>
+                        </div>
+                        <div className="flex justify-between items-center p-4 sm:p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
+                            <span className="text-slate-400 font-black uppercase text-[9px] sm:text-[10px] tracking-widest">Matches Played</span>
+                            <span className="text-xl sm:text-2xl font-black text-white">{results.length}</span>
+                        </div>
                     </div>
                 </div>
 
-                {/* Tournament Summary & Actions */}
-                <div className="flex flex-col gap-6 sm:gap-8 h-full">
-                    <div className="neon-card text-left p-6 sm:p-8 bg-slate-950/30 border-slate-800/50 flex-1">
-                        <h3 className="text-ucl-neon font-black mb-6 sm:mb-10 uppercase text-[10px] sm:text-xs tracking-[0.25em] flex items-center gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 items-stretch">
+                    {/* Player List with Eras Card */}
+                    <div className="neon-card text-left p-6 sm:p-8 flex flex-col h-full bg-slate-950/30 border-slate-800/50">
+                        <h3 className="text-ucl-neon font-black mb-6 sm:mb-8 uppercase text-[10px] sm:text-xs tracking-[0.25em] flex items-center gap-3">
                             <div className="w-1.5 h-1.5 rounded-full bg-ucl-neon animate-pulse"></div>
-                            Tournament Summary
+                            Legendary Squad
                         </h3>
-                        <div className="grid grid-cols-1 gap-4 sm:gap-6">
-                            <div className="flex justify-between items-center p-4 sm:p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
-                                <span className="text-slate-400 font-black uppercase text-[9px] sm:text-[10px] tracking-widest">Record</span>
-                                <div className="flex items-center gap-1.5 sm:gap-2">
-                                    <span className="text-lg sm:text-xl font-black text-green-500">{wins}W</span>
-                                    <span className="text-lg sm:text-xl font-black text-slate-500">{draws}D</span>
-                                    <span className="text-lg sm:text-xl font-black text-red-500">{losses}L</span>
+                        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar flex-1">
+                            {gameState.squad.map((player, idx) => player && (
+                                <div key={player.id} className="flex items-center justify-between p-3 bg-slate-900/40 rounded-xl border border-slate-800/40 hover:border-ucl-neon/20 transition-colors">
+                                    <div className="flex flex-col min-w-0">
+                                        <span className="text-xs font-black text-white uppercase tracking-tight truncate">{player.name}</span>
+                                        <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">{player.positions[0]} · {player.club}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 shrink-0">
+                                        <span className="text-[10px] font-black text-ucl-gold bg-ucl-gold/5 px-2 py-0.5 rounded border border-ucl-gold/10">{player.decade}</span>
+                                        <span className="text-xs font-black text-white w-6 text-right">{player.rating}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex justify-between items-center p-4 sm:p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
-                                <span className="text-slate-400 font-black uppercase text-[9px] sm:text-[10px] tracking-widest">Strength</span>
-                                <div className="flex flex-col items-end">
-                                    <span className="text-2xl sm:text-3xl font-black text-ucl-gold">{squadRating}</span>
-                                    <span className="text-[7px] sm:text-[8px] text-slate-600 uppercase font-black tracking-tighter">Avg Rating</span>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-center p-4 sm:p-5 bg-slate-900/50 rounded-2xl border border-slate-800/50">
-                                <span className="text-slate-400 font-black uppercase text-[9px] sm:text-[10px] tracking-widest">Played</span>
-                                <span className="text-xl sm:text-2xl font-black text-white">{results.length}</span>
-                            </div>
+                            ))}
                         </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                        <button onClick={shareScreenshot} className="btn-primary flex-1 flex items-center justify-center gap-3 py-3 sm:py-4 text-sm sm:text-base font-black uppercase tracking-widest">
-                            <Share2 className="size-[18px] sm:size-5" /> Share
-                        </button>
-                        <button onClick={onReset} className="flex-1 px-8 py-3 sm:py-4 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-2xl sm:rounded-3xl font-black uppercase tracking-widest hover:bg-slate-700 hover:border-slate-600 transition-all text-xs sm:text-sm">
-                            Play Again
-                        </button>
+                    {/* Tactical Setup Visualization */}
+                    <div className="neon-card text-left p-6 sm:p-8 flex flex-col h-full bg-slate-950/30 border-slate-800/50">
+                        <h3 className="text-ucl-neon font-black mb-6 sm:mb-8 uppercase text-[10px] sm:text-xs tracking-[0.25em] flex items-center gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-ucl-neon animate-pulse"></div>
+                            Tactical Setup: {gameState.formation?.name}
+                        </h3>
+                        <div className="relative aspect-[3/4] bg-slate-900/40 rounded-3xl overflow-hidden border border-slate-800/60 shadow-inner flex-1 pitch-container max-w-[300px] mx-auto w-full">
+                            <div className="absolute inset-0 opacity-10 pointer-events-none">
+                                <div className="absolute top-1/2 left-0 w-full h-px bg-white"></div>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white rounded-full"></div>
+                            </div>
+                            {gameState.formation?.positions.map((pos, idx) => {
+                                const player = gameState.squad[idx];
+                                return (
+                                    <div 
+                                        key={pos.id}
+                                        className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
+                                        style={{ top: pos.top, left: pos.left }}
+                                    >
+                                        <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border shadow-lg transition-all ${player ? 'bg-ucl-neon border-white text-ucl-dark' : 'bg-slate-800 border-slate-700 text-slate-500'}`}>
+                                            {player ? (
+                                                <span className="font-black text-[7px] sm:text-[9px] truncate w-7 sm:w-9 text-center uppercase tracking-tighter">{player.name.split(' ').pop()}</span>
+                                            ) : (
+                                                <span className="text-[6px] sm:text-[7px] font-black">{pos.label}</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
+                </div>
+
+                {/* Actions Section */}
+                <div className="flex flex-col sm:flex-row gap-4 max-w-2xl mx-auto">
+                    <button onClick={shareScreenshot} className="btn-primary flex-1 flex items-center justify-center gap-3 py-4 text-base font-black uppercase tracking-widest">
+                        <Share2 className="size-5" /> Share Run
+                    </button>
+                    <button onClick={onReset} className="flex-1 px-8 py-4 bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-3xl font-black uppercase tracking-widest hover:bg-slate-700 hover:border-slate-600 transition-all text-sm">
+                        Start New Draft
+                    </button>
                 </div>
             </div>
             
