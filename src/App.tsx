@@ -454,7 +454,7 @@ function DraftScreen({
               className="group flex items-center gap-1.5 text-amber-400 hover:text-amber-300 transition-all disabled:opacity-35 disabled:cursor-not-allowed"
             >
               <RefreshCw strokeWidth={2.35} className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 transition-transform group-hover:rotate-90" />
-              <span>Team</span>
+              <span>Respin Team</span>
               <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-1.5 py-0.5 text-[9px] tracking-normal text-amber-300">
                 {rerolls.club}
               </span>
@@ -466,7 +466,7 @@ function DraftScreen({
               className="group flex items-center gap-1.5 text-violet-400 hover:text-violet-300 transition-all disabled:opacity-35 disabled:cursor-not-allowed"
             >
               <RefreshCw strokeWidth={2.35} className="w-4 h-4 sm:w-5 sm:h-5 text-violet-400 transition-transform group-hover:-rotate-90" />
-              <span>Era</span>
+              <span>Respin Era</span>
               <span className="rounded-full border border-violet-400/20 bg-violet-400/10 px-1.5 py-0.5 text-[9px] tracking-normal text-violet-300">
                 {rerolls.decade}
               </span>
