@@ -32,6 +32,8 @@ const checkPositionCompatibility = (player: Player, slot: Position) => {
   return false;
 };
 
+const normalizeClub = (name: string) => name.split(' (')[0].trim();
+
 export default function App() {
   const [gameState, setGameState] = useState<GameState>({
     status: 'START',
@@ -171,18 +173,24 @@ export default function App() {
 
       const currentDecade = spinResult.decade;
       const currentClub = spinResult.club;
+      const currentClubBase = normalizeClub(currentClub);
 
       setTimeout(() => {
         const draftedIds = gameState.squad.filter(p => p !== null).map(p => p!.id);
         
+        // Find all unique club names in this decade that have available players
         const validClubs = PLAYERS.filter(p => p.decade === currentDecade && !draftedIds.includes(p.id))
           .map(p => p.club);
         
         const uniqueClubs = Array.from(new Set(validClubs));
         
-        // Force a change if possible
-        let availableClubs = uniqueClubs.filter(c => c !== currentClub);
-        if (availableClubs.length === 0) availableClubs = uniqueClubs;
+        // Filter out any clubs that are variants of the current one
+        let availableClubs = uniqueClubs.filter(c => normalizeClub(c) !== currentClubBase);
+        
+        // Fallback to any other club in this decade if no different base club exists
+        if (availableClubs.length === 0) {
+          availableClubs = uniqueClubs.filter(c => c !== currentClub);
+        }
 
         if (availableClubs.length === 0) {
           setIsSpinning(false);
@@ -209,29 +217,36 @@ export default function App() {
 
       const currentClub = spinResult.club;
       const currentDecade = spinResult.decade;
+      const currentClubBase = normalizeClub(currentClub);
 
       setTimeout(() => {
         const draftedIds = gameState.squad.filter(p => p !== null).map(p => p!.id);
         
-        const validDecades = PLAYERS.filter(p => p.club === currentClub && !draftedIds.includes(p.id))
-          .map(p => p.decade);
+        // Find all available (club, decade) combinations that match the same base club
+        const allMatches = PLAYERS.filter(p => normalizeClub(p.club) === currentClubBase && !draftedIds.includes(p.id))
+          .reduce((acc: { club: string, decade: string }[], p) => {
+            if (!acc.find(a => a.club === p.club && a.decade === p.decade)) {
+              acc.push({ club: p.club, decade: p.decade });
+            }
+            return acc;
+          }, []);
+
+        // Filter out the current exact combination
+        let availableOptions = allMatches.filter(o => o.decade !== currentDecade || o.club !== currentClub);
         
-        const uniqueDecades = Array.from(new Set(validDecades));
+        // If no other options, fall back to all matches
+        if (availableOptions.length === 0) availableOptions = allMatches;
 
-        // Force a change if possible
-        let availableDecades = uniqueDecades.filter(d => d !== currentDecade);
-        if (availableDecades.length === 0) availableDecades = uniqueDecades;
-
-        if (availableDecades.length === 0) {
+        if (availableOptions.length === 0) {
           setIsSpinning(false);
           return;
         }
 
-        const newDecade = availableDecades[Math.floor(Math.random() * availableDecades.length)] as any;
-        setSpinResult({ club: currentClub, decade: newDecade });
+        const choice = availableOptions[Math.floor(Math.random() * availableOptions.length)];
+        setSpinResult({ club: choice.club, decade: choice.decade });
         playSound('lock');
 
-        const players = PLAYERS.filter(p => p.club === currentClub && p.decade === newDecade && !draftedIds.includes(p.id));
+        const players = PLAYERS.filter(p => p.club === choice.club && p.decade === choice.decade && !draftedIds.includes(p.id));
         setActiveRoster(players);
         setIsSpinning(false);
       }, 1000);
